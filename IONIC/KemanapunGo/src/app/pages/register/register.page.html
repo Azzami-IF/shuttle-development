@@ -1,0 +1,86 @@
+<ion-content class="login-page register-page" [fullscreen]="true" scrollY="true">
+  <div class="auth-shell">
+    <!-- Hero Illustration Section -->
+    <div class="hero-section">
+
+      <!-- Header UI -->
+      <div class="header-ui">
+        <button class="back-btn" (click)="goBack()">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+      </div>
+
+      <!-- Logo -->
+      <div class="logo-container">
+        <img alt="KemanapunGo Logo" class="logo-img animate-float" src="assets/icon/favicon.png">
+      </div>
+    </div>
+
+    <!-- Register Form Content -->
+    <div class="login-form-content glass-panel">
+      <div class="text-center">
+        <h1>Daftar Akun</h1>
+        <p>Bergabunglah dengan KemanapunGo untuk perjalanan yang lebih tenang.</p>
+      </div>
+
+      <form (submit)="onRegister($event)">
+        <!-- Input Group: Full Name -->
+        <div class="input-group">
+          <label>Nama Lengkap</label>
+          <div class="input-wrapper">
+            <span class="material-symbols-outlined icon">badge</span>
+            <input class="custom-input" type="text" [(ngModel)]="registerData.name" name="name" placeholder="Masukkan Nama Lengkap" autocomplete="off" required>
+          </div>
+        </div>
+
+        <!-- Input Group: Email -->
+
+        <div class="input-group">
+          <label>Email</label>
+          <div class="input-wrapper">
+            <span class="material-symbols-outlined icon">mail</span>
+            <input class="custom-input" type="email" [(ngModel)]="registerData.email" name="email" placeholder="Masukkan Email" autocomplete="off" required>
+          </div>
+        </div>
+
+        <!-- Input Group: Phone -->
+        <div class="input-group">
+          <label>No. Telp</label>
+          <div class="input-wrapper">
+            <span class="material-symbols-outlined icon">phone</span>
+            <input class="custom-input" type="tel" [(ngModel)]="registerData.phone" name="phone" placeholder="Masukkan No. Telp" autocomplete="off" required>
+          </div>
+        </div>
+
+        <!-- Input Group: Password -->
+        <div class="input-group">
+          <label>Kata Sandi</label>
+          <div class="input-wrapper">
+            <span class="material-symbols-outlined icon">lock</span>
+            <input class="custom-input" type="password" [(ngModel)]="registerData.password" name="password" placeholder="Masukkan Kata Sandi" autocomplete="off" required>
+          </div>
+        </div>
+
+        <!-- Privacy Policy Checkbox -->
+        <div class="privacy-agreement">
+          <ion-checkbox [(ngModel)]="agreedToTerms" name="agreedToTerms" mode="md"></ion-checkbox>
+          <label (click)="agreedToTerms = !agreedToTerms">
+            Saya telah membaca dan menyetujui <a (click)="showPrivacyPolicy(); $event.stopPropagation()">Kebijakan Privasi</a> KemanapunGo. Data saya akan digunakan sesuai kebijakan yang berlaku.
+          </label>
+        </div>
+
+        <!-- Primary CTA -->
+        <button type="submit" class="submit-btn" [disabled]="isLoading || !agreedToTerms">
+          <span *ngIf="!isLoading">Daftar</span>
+          <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+        </button>
+      </form>
+
+      <!-- Login Prompt -->
+      <div class="register-prompt">
+        <p>Sudah punya akun? <a [routerLink]="['/login']">Masuk Sekarang</a></p>
+      </div>
+
+    </div>
+  </div>
+</ion-content>

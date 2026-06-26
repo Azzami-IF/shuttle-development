@@ -1,0 +1,287 @@
+@import "../../components/shared/design-system.scss";
+
+.admin-vehicles-content {
+  --background: var(--ion-background-color);
+  background: var(--ion-background-color);
+
+  &::part(scroll) {
+    padding-bottom: 110px;
+  }
+}
+
+.vehicles-container {
+  padding: 20px 16px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.glass-panel {
+  border-radius: 16px;
+  border: 1px solid rgba(24, 40, 30, 0.06);
+  box-shadow: 0 4px 16px rgba(24, 40, 30, 0.04);
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.error-card {
+  margin-bottom: 16px;
+  background: rgba(219, 40, 40, 0.08);
+  border-left: 4px solid var(--ion-color-danger, #db2828);
+
+  ion-card-content {
+    color: #db2828;
+    font-weight: 600;
+  }
+}
+
+.search-card {
+  margin-bottom: 20px;
+
+  ion-card-content {
+    padding: 8px 12px;
+  }
+
+  .search-item {
+    --background: transparent;
+    --min-height: 48px;
+    
+    ion-icon {
+      font-size: 20px;
+      color: #64735b;
+      margin-right: 8px;
+    }
+
+    ion-input {
+      --padding-start: 0;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ion-text-color);
+    }
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  gap: 12px;
+
+  p {
+    color: #64735b;
+    font-size: 14px;
+    font-weight: 600;
+  }
+}
+
+.vehicles-card {
+  margin-bottom: 20px;
+
+  ion-card-header {
+    padding: 16px 16px 8px;
+
+    ion-card-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #18281e;
+    }
+  }
+
+  ion-list {
+    background: transparent;
+    padding: 0;
+  }
+}
+
+.vehicle-item {
+  --background: transparent;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --inner-padding-end: 0;
+  --min-height: 72px;
+  border-bottom: 1px solid rgba(24, 40, 30, 0.05);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  ion-icon[slot="start"] {
+    font-size: 26px;
+    margin-right: 16px;
+    color: #18281e;
+    opacity: 0.9;
+  }
+
+  ion-label {
+    margin: 14px 0;
+  }
+
+  .vehicle-title {
+    font-weight: 700;
+    color: #18281e;
+    font-size: 15px;
+    margin-bottom: 3px;
+  }
+
+  .vehicle-meta {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64735b;
+
+    .plate {
+      background: rgba(83, 99, 73, 0.08);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 11px;
+      color: #536349;
+    }
+
+    .seats {
+      color: #64735b;
+    }
+
+    span {
+      display: inline;
+
+      &.dot {
+        margin: 0 6px;
+        color: #c4cdc1;
+      }
+    }
+  }
+
+  .actions {
+    display: flex;
+    gap: 4px;
+
+    ion-button {
+      --padding-start: 6px;
+      --padding-end: 6px;
+      height: 36px;
+      --color: #536349;
+
+      &[color="danger"] {
+        --color: #db2828;
+      }
+
+      ion-icon {
+        font-size: 20px;
+      }
+    }
+  }
+}
+
+.empty-card {
+  margin-bottom: 20px;
+
+  .empty-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 48px 24px;
+    text-align: center;
+
+    h2 {
+      margin: 12px 0 6px 0;
+      color: #18281e;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    p {
+      margin: 0 0 20px 0;
+      color: #64735b;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    ion-button {
+      --border-radius: 12px;
+      font-weight: 700;
+      --padding-start: 20px;
+      --padding-end: 20px;
+      height: 44px;
+    }
+  }
+}
+
+.pagination-card {
+  margin-bottom: 20px;
+
+  ion-card-content {
+    padding: 12px 16px;
+  }
+
+  .pagination-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+
+    .page-info {
+      color: #3e4e37;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    ion-button {
+      margin: 0;
+      --border-radius: 10px;
+      font-weight: 700;
+      font-size: 12px;
+      height: 38px;
+    }
+  }
+}
+
+/* Custom form styles inside modal */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+
+  label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #536349;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin-left: 4px;
+  }
+
+  .custom-input {
+    width: 100%;
+    height: 52px;
+    background: #f7f9f6;
+    border: 1px solid rgba(24, 40, 30, 0.1);
+    border-radius: 12px;
+    padding: 0 16px;
+    font-size: 15px;
+    color: #18281e;
+    outline: none;
+    transition: all 0.2s ease;
+
+    &::placeholder {
+      color: #a3ad9f;
+    }
+
+    &:focus {
+      border-color: #18281e;
+      background: #ffffff;
+      box-shadow: 0 4px 12px rgba(24, 40, 30, 0.05);
+    }
+  }
+}
+
+.mb-4 { margin-bottom: 16px; }
+.mb-6 { margin-bottom: 24px; }
+
+.bottom-nav {
+  @extend .shared-bottom-nav;
+}

@@ -1,0 +1,165 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-title *ngIf="lang$ | async">{{ getTranslation('selectSchedule') }}</ion-title>
+    <!-- filter button removed (non-functional) -->
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="schedule-list-page">
+  <div class="content-wrapper pb-32">
+    <section class="search-summary">
+    <div class="search-form-card">
+      <div class="route-inputs">
+        <!-- Input Asal (Autocomplete) -->
+        <div class="input-container">
+          <div class="input-box">
+            <span class="material-symbols-outlined icon-left origin-icon">location_on</span>
+            <ion-input placeholder="Asal" [(ngModel)]="filters.origin" (keyup)="onOriginInput()" (ionFocus)="onOriginFocus()" (ionBlur)="hideOriginSuggestions()"></ion-input>
+          </div>
+          <!-- Dropdown Suggestions -->
+          <div class="suggestions-list" *ngIf="showOriginSuggestions && filteredOriginSuggestions.length > 0">
+            <div class="suggestion-header">Kota Keberangkatan</div>
+            <div class="suggestion-item" *ngFor="let city of filteredOriginSuggestions" (mousedown)="selectOrigin(city)">
+              <span class="material-symbols-outlined icon-item origin-icon">location_on</span>
+              <span>{{ city }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <span class="material-symbols-outlined arrow-icon">arrow_forward</span>
+        
+        <!-- Input Tujuan (Autocomplete) -->
+        <div class="input-container">
+          <div class="input-box">
+            <span class="material-symbols-outlined icon-left dest-icon">flag</span>
+            <ion-input placeholder="Tujuan" [(ngModel)]="filters.destination" (keyup)="onDestInput()" (ionFocus)="onDestFocus()" (ionBlur)="hideDestSuggestions()"></ion-input>
+          </div>
+          <!-- Dropdown Suggestions -->
+          <div class="suggestions-list" *ngIf="showDestSuggestions && filteredDestSuggestions.length > 0">
+            <div class="suggestion-header">Kota Tujuan</div>
+            <div class="suggestion-item" *ngFor="let city of filteredDestSuggestions" (mousedown)="selectDest(city)">
+              <span class="material-symbols-outlined icon-item dest-icon">flag</span>
+              <span>{{ city }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Scrollable Date Strip -->
+      <div class="date-strip-container">
+        <div class="date-strip-scroll">
+          <div 
+            class="date-card" 
+            *ngFor="let d of dateStrips" 
+            [class.active]="filters.date === d.value"
+            (click)="selectDateStrip(d.value)">
+            <div class="day-label">{{ d.label }}</div>
+            <div class="day-num">{{ d.dayNum }}</div>
+          </div>
+          
+          <!-- Calendar Card at the end for other dates -->
+          <div class="date-card calendar-card" id="open-calendar-modal">
+            <span class="material-symbols-outlined">calendar_month</span>
+            <div class="day-label">Lainnya</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Popover Calendar for "Lainnya" date picker -->
+      <ion-popover #calendarPopover trigger="open-calendar-modal" triggerAction="click" alignment="center">
+        <ng-template>
+          <ion-datetime 
+            presentation="date" 
+            [(ngModel)]="filters.date" 
+            (ionChange)="onDateSelect($event, calendarPopover)">
+          </ion-datetime>
+        </ng-template>
+      </ion-popover>
+    </div>
+  </section>
+
+  <section class="filter-bar" *ngIf="lang$ | async">
+    <div class="filter-item" [class.active]="sortBy === 'time'" (click)="setSort('time')">
+      <span class="material-symbols-outlined text-[16px]">sort</span>
+      {{ getTranslation('fastest') }}
+    </div>
+    <div class="filter-item" [class.active]="sortBy === 'price'" (click)="setSort('price')">
+      <span class="material-symbols-outlined text-[16px]">payments</span>
+      {{ getTranslation('cheapest') }}
+    </div>
+  </section>
+
+  <main>
+    <ion-spinner *ngIf="loading" name="crescent" class="center-spinner"></ion-spinner>
+    <div class="schedule-card" *ngFor="let schedule of displaySchedules" (click)="viewSchedule(schedule.id)">
+      <div class="card-top">
+        <div class="time-info">
+          <div class="time">{{ schedule.departure_time | date:'HH:mm' }}</div>
+          <div class="date">{{ schedule.departure_time | date:'d MMM yyyy' }}</div>
+        </div>
+        <div class="price-info" *ngIf="lang$ | async">
+          <div class="price">Rp {{ (schedule.price || 85000) | number:'1.0-0' }}</div>
+          <div class="seats">{{ getAvailableSeats(schedule) }} {{ getTranslation('seatsAvailable') }}</div>
+        </div>
+      </div>
+
+      <div class="route-details">
+        <div class="visual">
+          <div class="dot"></div>
+          <div class="line"></div>
+          <div class="dot"></div>
+        </div>
+        <div class="points">
+          <div>
+            <div class="city-name">{{ schedule.origin }}</div>
+            <div class="terminal-name text-[11px] opacity-70 mt-1" *ngIf="schedule.origin_terminal">{{ schedule.origin_terminal }}</div>
+          </div>
+          <div>
+            <div class="city-name">{{ schedule.destination }}</div>
+            <div class="terminal-name text-[11px] opacity-70 mt-1" *ngIf="schedule.destination_terminal">{{ schedule.destination_terminal }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="vehicle-info">
+        <span class="material-symbols-outlined text-[16px]">directions_bus</span>
+        {{ schedule.vehicle?.name }} • {{ schedule.vehicle?.license_plate }}
+        <div class="amenities">
+          <span class="material-symbols-outlined text-[16px]" aria-hidden="true">wifi</span>
+          <span class="material-symbols-outlined text-[16px]" aria-hidden="true">ac_unit</span>
+          <span class="material-symbols-outlined text-[16px]" aria-hidden="true">electrical_services</span>
+        </div>
+        <div class="action" *ngIf="lang$ | async">
+          <ion-button size="small" color="secondary" (click)="$event.stopPropagation(); viewSchedule(schedule.id)" [disabled]="getAvailableSeats(schedule) === 0" aria-label="Pilih jadwal">{{ getTranslation('select') }}</ion-button>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state-container" *ngIf="schedules.length === 0 && (lang$ | async)">
+      <span class="material-symbols-outlined">search_off</span>
+      <p>{{ getTranslation('noSchedule') }}</p>
+    </div>
+  </main>
+</div>
+</ion-content>
+
+<ng-container *ngIf="user$ | async as user">
+  <nav class="bottom-nav" *ngIf="user.role === 'customer'">
+    <button class="nav-item" routerLink="/dashboard">
+      <span class="material-symbols-outlined">home</span>
+      <span>{{ getTranslation('home') }}</span>
+    </button>
+    <button class="nav-item active">
+      <span class="material-symbols-outlined">directions_bus</span>
+      <span>{{ getTranslation('schedule') }}</span>
+    </button>
+    <button class="nav-item" routerLink="/booking-detail">
+      <span class="material-symbols-outlined">confirmation_number</span>
+      <span>{{ getTranslation('bookings') }}</span>
+    </button>
+    <button class="nav-item" routerLink="/profile">
+      <span class="material-symbols-outlined">person</span>
+      <span>{{ getTranslation('profile') }}</span>
+    </button>
+  </nav>
+</ng-container>

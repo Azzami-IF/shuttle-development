@@ -1,0 +1,233 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary" class="pt-safe">
+    <ion-title>Manajemen Supir</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="admin-drivers-content">
+  <ion-refresher slot="fixed" (ionRefresh)="loadDrivers(1); $event.target.complete()">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="drivers-container">
+    <!-- Error Message -->
+    <ion-card *ngIf="error" class="error-card glass-panel">
+      <ion-card-content>{{ error }}</ion-card-content>
+    </ion-card>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-container">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>Memuat data supir...</p>
+    </div>
+
+    <!-- Drivers List -->
+    <ion-card *ngIf="!loading && drivers.length > 0" class="drivers-card glass-panel">
+      <ion-card-header>
+        <ion-card-title>Daftar Supir Aktif ({{ pagination.total }})</ion-card-title>
+      </ion-card-header>
+      <ion-list>
+        <ion-item *ngFor="let driver of drivers" class="driver-item">
+          <ion-icon name="person-outline" slot="start" color="primary" class="driver-avatar-icon"></ion-icon>
+          <ion-label>
+            <div class="driver-name">{{ driver.name }}</div>
+            <div class="driver-meta">
+              <span class="license">SIM: {{ driver.license_number || '-' }}</span>
+              <span class="dot">·</span>
+              <span class="trips">Trip: {{ driver.completed_trips || 0 }}/{{ driver.total_trips || 0 }}</span>
+              <span class="dot">·</span>
+              <span class="rating">★ {{ (driver.rating !== undefined && driver.rating !== null ? driver.rating : 5).toFixed(1) }}</span>
+            </div>
+            <div class="driver-contact">
+              {{ driver.email }} <span *ngIf="driver.phone">| {{ driver.phone }}</span>
+            </div>
+          </ion-label>
+          <div class="badges-wrapper" slot="end">
+            <ion-badge [color]="getStatusColor(driver.status)" class="driver-status-badge">
+              {{ driver.status === 'active' ? 'Aktif' : (driver.status === 'suspended' ? 'Ditangguhkan' : 'Nonaktif') }}
+            </ion-badge>
+            <ion-badge [color]="getApprovalBadgeColor(driver.is_approved)" class="driver-approval-badge">
+              {{ driver.is_approved ? 'Disetujui' : 'Pending' }}
+            </ion-badge>
+          </div>
+          <ion-button
+            slot="end"
+            fill="clear"
+            size="small"
+            (click)="viewDetails(driver)"
+            color="primary"
+            class="view-btn">
+            <ion-icon name="eye-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ion-card>
+
+    <!-- Empty State -->
+    <ion-card *ngIf="!loading && drivers.length === 0" class="empty-card glass-panel">
+      <ion-card-content class="empty-content">
+        <span class="material-symbols-outlined" style="font-size: 64px; color: #c4cdc1; margin-bottom: 12px;">person_outline</span>
+        <h2>Supir Tidak Ditemukan</h2>
+        <p>Belum ada akun supir terdaftar dalam sistem.</p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Pagination -->
+    <ion-card *ngIf="!loading && pagination.last_page > 1" class="pagination-card glass-panel">
+      <ion-card-content>
+        <div class="pagination-controls">
+          <ion-button
+            (click)="prevPage()"
+            [disabled]="pagination.current_page === 1"
+            fill="outline">
+            <ion-icon name="chevron-back" slot="start"></ion-icon>
+            Sebelumnya
+          </ion-button>
+          <span class="page-info">
+            Halaman {{ pagination.current_page }} dari {{ pagination.last_page }}
+          </span>
+          <ion-button
+            (click)="nextPage()"
+            [disabled]="pagination.current_page === pagination.last_page"
+            fill="outline">
+            Selanjutnya
+            <ion-icon name="chevron-forward" slot="end"></ion-icon>
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Driver Details Modal -->
+  <ion-modal [isOpen]="showDetails" (didDismiss)="closeDetails()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar color="primary">
+          <ion-title>Detail Profil Supir</ion-title>
+          <ion-buttons slot="start">
+            <ion-button (click)="closeDetails()">Tutup</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding modal-driver-details" *ngIf="selectedDriver">
+        <ion-card class="glass-panel profile-summary-card">
+          <ion-card-header class="text-center-wrapper">
+            <div class="avatar-circle">
+              <span class="material-symbols-outlined">account_circle</span>
+            </div>
+            <ion-card-title>{{ selectedDriver.name }}</ion-card-title>
+            <div class="email-subtitle">{{ selectedDriver.email }}</div>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="detail-row">
+              <span class="label">Nomor Telepon:</span>
+              <span class="val">{{ selectedDriver.phone || '-' }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Nomor SIM:</span>
+              <span class="val">{{ selectedDriver.license_number || '-' }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Status Supir:</span>
+              <ion-badge [color]="getStatusColor(selectedDriver.status)">
+                {{ selectedDriver.status === 'active' ? 'Aktif' : (selectedDriver.status === 'suspended' ? 'Ditangguhkan' : 'Nonaktif') }}
+              </ion-badge>
+            </div>
+            <div class="detail-row">
+              <span class="label">Status Persetujuan:</span>
+              <ion-badge [color]="getApprovalBadgeColor(selectedDriver.is_approved)">
+                {{ selectedDriver.is_approved ? 'Disetujui' : 'Pending' }}
+              </ion-badge>
+            </div>
+            <div class="detail-row">
+              <span class="label">Total Perjalanan:</span>
+              <span class="val">{{ selectedDriver.total_trips || 0 }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Selesai:</span>
+              <span class="val">{{ selectedDriver.completed_trips || 0 }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Tingkat Penyelesaian:</span>
+              <span class="val">{{ getCompletionRate(selectedDriver) }}%</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Rating Rata-rata:</span>
+              <span class="rating">★ {{ (selectedDriver.rating !== undefined && selectedDriver.rating !== null ? selectedDriver.rating : 5).toFixed(1) }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Bergabung Sejak:</span>
+              <span class="val">{{ selectedDriver.created_at | date: 'dd MMM yyyy' }}</span>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Progress Bars -->
+        <ion-card class="glass-panel stats-card">
+          <ion-card-header>
+            <ion-card-title>Statistik Supir</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="stat-bar">
+              <div class="stat-label">Tingkat Penyelesaian</div>
+              <ion-progress-bar
+                [value]="getCompletionRate(selectedDriver) / 100"
+                color="success">
+              </ion-progress-bar>
+              <div class="stat-value">{{ getCompletionRate(selectedDriver) }}%</div>
+            </div>
+            <div class="stat-bar">
+              <div class="stat-label">Rating Pengguna</div>
+              <ion-progress-bar
+                [value]="(selectedDriver.rating !== undefined && selectedDriver.rating !== null ? selectedDriver.rating : 5) / 5"
+                color="warning">
+              </ion-progress-bar>
+              <div class="stat-value">{{ (selectedDriver.rating !== undefined && selectedDriver.rating !== null ? selectedDriver.rating : 5).toFixed(1) }}/5.0</div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Actions -->
+        <div class="actions-wrapper">
+          <button
+            *ngIf="!selectedDriver.is_approved"
+            class="btn-approve"
+            (click)="approveDriver(selectedDriver)">
+            <span class="material-symbols-outlined">verified</span>
+            Setujui Pendaftaran Supir
+          </button>
+          <button
+            *ngIf="selectedDriver.is_approved"
+            class="btn-approved"
+            disabled>
+            <span class="material-symbols-outlined">check_circle</span>
+            Supir Telah Disetujui
+          </button>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+</ion-content>
+
+<nav class="bottom-nav">
+  <button class="nav-item" routerLink="/admin/dashboard">
+    <span class="material-symbols-outlined">dashboard</span>
+    <span>Dashboard</span>
+  </button>
+  <button class="nav-item" routerLink="/admin/admin-vehicles">
+    <span class="material-symbols-outlined">directions_bus</span>
+    <span>Armada</span>
+  </button>
+  <button class="nav-item" routerLink="/admin/admin-schedules">
+    <span class="material-symbols-outlined">calendar_month</span>
+    <span>Jadwal</span>
+  </button>
+  <button class="nav-item active">
+    <span class="material-symbols-outlined">person</span>
+    <span>Supir</span>
+  </button>
+  <button class="nav-item" (click)="confirmLogout()">
+    <span class="material-symbols-outlined">logout</span>
+    <span>Logout</span>
+  </button>
+</nav>

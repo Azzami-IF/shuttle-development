@@ -1,0 +1,207 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary" class="pt-safe">
+
+    <ion-title>Manajemen Pemesanan</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="loadBookings(1); $event.target.complete()">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="bookings-container">
+    <!-- Error Message -->
+    <ion-card *ngIf="error" class="error-card">
+      <ion-card-content>{{ error }}</ion-card-content>
+    </ion-card>
+
+    <!-- Filters -->
+    <ion-card class="filters-card">
+      <ion-card-content>
+        <ion-item>
+          <ion-label position="floating">Search by user or route</ion-label>
+          <ion-input
+            [(ngModel)]="searchQuery"
+            (ionChange)="onSearchChange()"
+            placeholder="Enter search term">
+          </ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Filter by status</ion-label>
+          <ion-select [(ngModel)]="filterStatus" (ionChange)="onFilterChange()">
+            <ion-select-option value="">All Statuses</ion-select-option>
+            <ion-select-option *ngFor="let status of statuses" [value]="status">
+              {{ status | titlecase }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-container">
+      <ion-spinner></ion-spinner>
+      <p>Loading bookings...</p>
+    </div>
+
+    <!-- Bookings List -->
+    <ion-card *ngIf="!loading && bookings.length > 0" class="bookings-card">
+      <ion-card-header>
+        <ion-card-title>Bookings ({{ pagination.total }})</ion-card-title>
+      </ion-card-header>
+      <ion-list>
+        <ion-item *ngFor="let booking of bookings" class="booking-item">
+          <ion-icon name="ticket" slot="start" color="primary"></ion-icon>
+          <ion-label>
+            <div class="booking-route">{{ getRouteDisplay(booking) }}</div>
+            <div class="booking-meta">
+              <span>{{ getUserDisplay(booking) }}</span>
+              <span class="dot">·</span>
+              <span>{{ booking.number_of_seats }} seat(s)</span>
+              <span class="dot">·</span>
+              <span>৳{{ booking.total_price }}</span>
+            </div>
+            <div class="booking-date">
+              {{ getDepartureTime(booking) | date: 'MMM dd, HH:mm' }}
+            </div>
+          </ion-label>
+          <ion-badge [color]="getStatusBadgeColor(booking.status)" slot="start">
+            {{ booking.status | titlecase }}
+          </ion-badge>
+          <ion-button
+            slot="end"
+            fill="clear"
+            size="small"
+            (click)="viewDetails(booking)"
+            color="primary">
+            <ion-icon name="eye"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ion-card>
+
+    <!-- Empty State -->
+    <ion-card *ngIf="!loading && bookings.length === 0" class="empty-card">
+      <ion-card-content class="empty-content">
+        <ion-icon name="ticket-outline"></ion-icon>
+        <h2>No Bookings Found</h2>
+        <p>Try adjusting your search or filters</p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Pagination -->
+    <ion-card *ngIf="!loading && pagination.last_page > 1" class="pagination-card">
+      <ion-card-content>
+        <div class="pagination-controls">
+          <ion-button
+            (click)="prevPage()"
+            [disabled]="pagination.current_page === 1"
+            fill="outline">
+            <ion-icon name="chevron-back" slot="start"></ion-icon>
+            Previous
+          </ion-button>
+          <span class="page-info">
+            Page {{ pagination.current_page }} of {{ pagination.last_page }}
+          </span>
+          <ion-button
+            (click)="nextPage()"
+            [disabled]="pagination.current_page === pagination.last_page"
+            fill="outline">
+            Next
+            <ion-icon name="chevron-forward" slot="end"></ion-icon>
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Booking Details Modal -->
+  <ion-modal [isOpen]="showDetails" (didDismiss)="closeDetails()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Booking Details</ion-title>
+          <ion-buttons slot="start">
+            <ion-button (click)="closeDetails()">Close</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding" *ngIf="selectedBooking">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Booking #{{ selectedBooking.id }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="detail-row">
+              <span class="label">Status:</span>
+              <ion-badge [color]="getStatusBadgeColor(selectedBooking.status)">
+                {{ selectedBooking.status | titlecase }}
+              </ion-badge>
+            </div>
+            <div class="detail-row">
+              <span class="label">Route:</span>
+              <span>{{ getRouteDisplay(selectedBooking) }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Departure:</span>
+              <span>{{ getDepartureTime(selectedBooking) | date: 'MMM dd, yyyy HH:mm' }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Passenger:</span>
+              <span>{{ getUserDisplay(selectedBooking) }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Email:</span>
+              <span>{{ selectedBooking.user_info?.email || '-' }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Phone:</span>
+              <span>{{ selectedBooking.user_info?.phone || '-' }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Number of Seats:</span>
+              <span>{{ selectedBooking.number_of_seats }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Total Price:</span>
+              <span class="price">৳{{ selectedBooking.total_price }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Payment Method:</span>
+              <span>{{ selectedBooking.payment_method | titlecase }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Payment Reference:</span>
+              <span class="reference">{{ selectedBooking.payment_reference }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Booked On:</span>
+              <span>{{ selectedBooking.created_at | date: 'MMM dd, yyyy HH:mm' }}</span>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Actions -->
+        <div class="actions">
+          <ion-button
+            *ngIf="selectedBooking.status === 'pending_payment'"
+            expand="block"
+            color="success"
+            (click)="approveBooking(selectedBooking)">
+            <ion-icon name="checkmark-circle" slot="start"></ion-icon>
+            Approve Payment
+          </ion-button>
+          <ion-button
+            *ngIf="selectedBooking.status !== 'cancelled' && selectedBooking.status !== 'completed'"
+            expand="block"
+            color="danger"
+            (click)="cancelBooking(selectedBooking)">
+            <ion-icon name="close-circle" slot="start"></ion-icon>
+            Cancel Booking
+          </ion-button>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+</ion-content>

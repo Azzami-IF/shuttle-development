@@ -1,0 +1,75 @@
+<ion-content class="login-page" [fullscreen]="true" scrollY="true">
+  <div class="auth-shell">
+    <!-- Hero Illustration Section -->
+    <div class="hero-section">
+      <div class="hero-img-container">
+        <div class="hero-img hero-art" aria-hidden="true"></div>
+        <div class="hero-overlay"></div>
+      </div>
+
+      <!-- Header UI -->
+      <div class="header-ui">
+        <button class="back-btn" type="button" (click)="goBack()" aria-label="Kembali ke onboarding">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+      </div>
+
+      <!-- Logo -->
+      <div class="logo-container">
+        <img alt="KemanapunGo Logo" class="logo-img" src="assets/icon/favicon.png">
+      </div>
+
+
+    </div>
+
+    <!-- Login Form Content -->
+    <div class="login-form-content glass-panel">
+      <div class="text-center">
+        <h1>Selamat Datang!</h1>
+        <p>Masuk untuk memesan tiket bus favoritmu dengan lebih cepat.</p>
+      </div>
+
+      <form (ngSubmit)="onLogin($event)">
+        <!-- Input Group: Email/Phone -->
+        <div class="input-group">
+          <label>Email / No. Telp</label>
+          <div class="input-wrapper">
+            <span class="material-symbols-outlined icon">person</span>
+            <input class="custom-input" placeholder="Masukkan Email atau No. Telp" type="email" inputmode="email" enterkeyhint="next" [(ngModel)]="loginData.email" name="email" required autocomplete="username">
+          </div>
+        </div>
+
+        <!-- Input Group: Password -->
+        <div class="input-group">
+          <label>Kata Sandi</label>
+          <div class="input-wrapper">
+            <span class="material-symbols-outlined icon">lock</span>
+            <input class="custom-input" placeholder="Masukkan Kata Sandi" [type]="showPassword ? 'text' : 'password'" [(ngModel)]="loginData.password" name="password" required autocomplete="current-password">
+            <button class="toggle-password" type="button" (click)="showPassword = !showPassword" aria-label="Tampilkan atau sembunyikan kata sandi">
+              <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+          <div class="forgot-password">
+            <a [routerLink]="['/forgot-password']" [queryParams]="{ source: 'client' }">Lupa Sandi?</a>
+          </div>
+        </div>
+
+        <!-- Primary CTA -->
+        <button class="submit-btn" type="submit" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Masuk</span>
+          <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+        </button>
+      </form>
+
+      <!-- Registration Prompt -->
+      <div class="register-prompt">
+        <p>Belum punya akun? <a [routerLink]="['/register']">Daftar Sekarang</a></p>
+      </div>
+
+      <!-- Privacy Policy Info -->
+      <div class="privacy-policy-container">
+        <p>Dengan masuk, Anda menyetujui <a routerLink="/privacy-policy">Kebijakan Privasi</a> kami.</p>
+      </div>
+    </div>
+  </div>
+</ion-content>

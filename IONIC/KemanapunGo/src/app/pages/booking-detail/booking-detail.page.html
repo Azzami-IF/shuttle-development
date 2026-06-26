@@ -1,0 +1,317 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-title>{{ getTranslation('myBookings') }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="booking-history-page">
+  <div class="content-wrap">
+    <!-- Search Bar -->
+    <div class="search-filter">
+      <div class="search-box">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" [placeholder]="getTranslation('searchHistory')" [(ngModel)]="searchTerm" (input)="onSearchChange()" autocomplete="off">
+      </div>
+    </div>
+
+    <!-- Booking Cards -->
+    <div class="cards-list">
+      <div class="booking-card" *ngFor="let item of bookings" [class.expanded]="expandedId === item.id">
+
+        <!-- Card Top: Route + Status -->
+        <div class="card-top" (click)="toggleExpand(item.id)">
+          <div class="route-col">
+            <div class="route-date">{{ item.created_at | date:'EEE, d MMM y' }}</div>
+            <div class="route-name">{{ item.schedule?.origin }} → {{ item.schedule?.destination }}</div>
+            <div class="text-[11px] text-gray-500 mb-1" *ngIf="item.schedule?.origin_terminal || item.schedule?.destination_terminal">
+              {{ item.schedule?.origin_terminal || item.schedule?.origin }} → 
+              {{ item.schedule?.destination_terminal || item.schedule?.destination }}
+            </div>
+            <div class="route-meta">
+              <span class="material-symbols-outlined">schedule</span> {{ item.schedule?.departure_time | date:'HH:mm' }} 
+              <span class="text-xs text-gray-400 mx-1">→</span>
+              <span class="font-bold">{{ (item.schedule?.arrival_time || getEstimatedArrival(item)) | date:'HH:mm' }}</span>
+              <span class="text-[10px] text-orange-500 font-bold ml-1" *ngIf="item._isNextDay">+1 Hari</span>
+              <span class="material-symbols-outlined ml-2">event_seat</span>
+              <ng-container *ngIf="item._seats">
+                <span *ngFor="let s of item._seats; let last = last">{{ getSeatLabel(s) }}{{ !last ? ', ' : '' }}</span>
+              </ng-container>
+              <ng-container *ngIf="!item._seats">{{ getSeatLabel(item.seat) || '-' }}</ng-container>
+            </div>
+          </div>
+          <div class="status-col">
+            <span class="status-pill" [ngClass]="getStatusClass(item.status)">
+              {{ getStatusLabel(item.status) }}
+            </span>
+            <span class="material-symbols-outlined chevron" [class.rotated]="expandedId === item.id">expand_more</span>
+          </div>
+        </div>
+
+        <!-- Card Expanded: Status Detail -->
+        <div class="card-detail" *ngIf="expandedId === item.id">
+          <div class="divider"></div>
+
+          <!-- PAID -->
+          <div class="status-detail paid-detail" *ngIf="item.status === 'booked'">
+            <div class="detail-icon-wrap paid">
+              <span class="material-symbols-outlined">check_circle</span>
+            </div>
+            <div class="detail-text">
+              <div class="detail-title">{{ getTranslation('paymentConfirmed') }}</div>
+              <div class="detail-sub">{{ item.updated_at | date:'HH:mm, EEEE d MMM y' }}</div>
+              <div class="price-tag">Rp {{ (item._total_price || item.total_price || 85000) | number:'1.0-0' }}</div>
+            </div>
+          </div>
+          <!-- WAITING VERIFICATION -->
+          <div class="status-detail waiting-detail" *ngIf="item.status === 'pending_verification'">
+            <div class="detail-icon-wrap waiting">
+              <span class="material-symbols-outlined">schedule</span>
+            </div>
+            <div class="detail-text">
+              <div class="detail-title">{{ getTranslation('awaitingVerification') }}</div>
+              <div class="detail-sub">Admin akan segera memeriksa bukti pembayaran Anda. Mohon tunggu.</div>
+            </div>
+          </div>
+
+          <div class="action-buttons-col" *ngIf="item.status === 'booked' || item.status === 'completed'">
+            <button class="view-ticket-btn" (click)="openTicket(item); $event.stopPropagation()">
+              <span class="material-symbols-outlined">confirmation_number</span>
+              {{ getTranslation('viewTicket') }}
+            </button>
+            <button class="track-trip-btn" *ngIf="isTrackable(item)" (click)="viewTracking(item); $event.stopPropagation()">
+              <span class="material-symbols-outlined">explore</span>
+              Lacak Perjalanan
+            </button>
+          </div>
+
+          <!-- UNPAID -->
+          <div class="status-detail unpaid-detail" *ngIf="item.status === 'pending_payment'">
+            <div class="detail-icon-wrap unpaid">
+              <span class="material-symbols-outlined">pending</span>
+            </div>
+            <div class="detail-text">
+              <div class="detail-title">{{ getTranslation('awaitingPayment') }}</div>
+              <div class="detail-sub">{{ getTranslation('pleaseTransfer') }}</div>
+            </div>
+
+            <!-- Payment Box -->
+            <div class="payment-box">
+              <div class="bank-row">
+                <div class="bank-logo">{{ bankDetails?.bank_name?.split(' ')[0] || 'BANK' }}</div>
+                <div>
+                  <div class="bank-label">{{ getTranslation('bankAccount') }}</div>
+                  <div class="account-number">{{ bankDetails?.account_number || 'Loading...' }}</div>
+                  <div class="account-name">a.n {{ bankDetails?.account_holder || '...' }}</div>
+                </div>
+                <button class="copy-btn" (click)="copyAccountNumber($event)">
+                  <span class="material-symbols-outlined">content_copy</span>
+                </button>
+              </div>
+              <div class="amount-row">
+                <span>{{ getTranslation('totalTransfer') }}</span>
+                <strong>Rp {{ (item._total_price || 85000) | number:'1.0-0' }}</strong>
+              </div>
+              <div class="unique-code-row" *ngIf="item.unique_code">
+                <span class="material-symbols-outlined">info</span>
+                {{ getTranslation('uniqueCodeNote') }}: <strong>+{{ item.unique_code }}</strong>
+              </div>
+              <!-- Upload Proof Section -->
+              <div class="upload-proof-box">
+                <input type="file" #fileInput (change)="onFileSelected($event, item)" accept="image/*" hidden>
+                <div class="proof-preview" *ngIf="item.payment_proof" (click)="fileInput.click()">
+                  <img [src]="storageUrl + item.payment_proof" alt="Bukti Transfer">
+                  <div class="change-overlay">
+                    <span class="material-symbols-outlined">edit</span>
+                    Ganti
+                  </div>
+                </div>
+                <button class="upload-btn" *ngIf="!item.payment_proof" (click)="fileInput.click()">
+                  <span class="material-symbols-outlined">upload_file</span>
+                  {{ getTranslation('uploadProof') }}
+                </button>
+              </div>
+
+              <div class="action-row">
+                <button class="cancel-action" (click)="cancelBooking(item); $event.stopPropagation()">
+                  <span class="material-symbols-outlined">cancel</span> {{ getTranslation('cancel') }}
+                </button>
+                <button class="confirm-action" (click)="confirmPayment(item); $event.stopPropagation()" [disabled]="!item.payment_proof">
+                  <span class="material-symbols-outlined">verified</span> {{ getTranslation('confirmPayment') }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- CANCELLED -->
+          <div class="status-detail cancelled-detail" *ngIf="item.status === 'cancelled'">
+            <div class="detail-icon-wrap cancelled">
+              <span class="material-symbols-outlined">cancel</span>
+            </div>
+            <div class="detail-text">
+              <div class="detail-title">{{ getTranslation('bookingCancelled') }}</div>
+              <div class="detail-sub">{{ item.updated_at | date:'HH:mm, d MMM y' }}</div>
+            </div>
+          </div>
+
+          <div class="ticket-tag">🎫 Tiket #TCK{{ item.id }}</div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="bookings.length === 0">
+        <span class="material-symbols-outlined">confirmation_number</span>
+        <p>{{ getTranslation('noBookings') }}</p>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<!-- Modal Tiket -->
+<ion-modal [isOpen]="ticketModalOpen" (ionModalDidDismiss)="closeTicket()" class="ticket-modal">
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar color="primary">
+        <ion-title>E-Ticket</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="closeTicket()">
+            <span class="material-symbols-outlined">close</span>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ticket-modal-content ion-padding">
+      <div class="tickets-container" *ngIf="selectedBooking">
+        
+        <!-- Loop Tiket per Kursi -->
+        <div class="ticket-card animate-in fade-in zoom-in duration-300" *ngFor="let s of (selectedBooking._seats || [selectedBooking.seat]); let i = index">
+          <div class="ticket-header">
+            <div class="ticket-type">E-TICKET / BOARDING PASS ({{ i + 1 }}/{{ selectedBooking._seats?.length || 1 }})</div>
+            <div class="ticket-status-pill">LUNAS</div>
+          </div>
+
+          <div class="ticket-body">
+            <!-- Route -->
+            <div class="ticket-route-row">
+              <div class="route-point left">
+                <div class="city-code">{{ getCityCode(selectedBooking.schedule?.origin) }}</div>
+                <div class="city-name">{{ selectedBooking.schedule?.origin }}</div>
+                <div class="terminal-name text-[10px] opacity-70 mt-1" *ngIf="selectedBooking.schedule?.origin_terminal">{{ selectedBooking.schedule?.origin_terminal }}</div>
+              </div>
+              <div class="route-line">
+                <span class="material-symbols-outlined">directions_bus</span>
+              </div>
+              <div class="route-point right">
+                <div class="city-code">{{ getCityCode(selectedBooking.schedule?.destination) }}</div>
+                <div class="city-name">{{ selectedBooking.schedule?.destination }}</div>
+                <div class="terminal-name text-[10px] opacity-70 mt-1" *ngIf="selectedBooking.schedule?.destination_terminal">{{ selectedBooking.schedule?.destination_terminal }}</div>
+              </div>
+            </div>
+
+            <!-- Detail Info -->
+            <div class="ticket-info-grid">
+              <div class="info-item">
+                <span class="info-label">Tanggal</span>
+                <span class="info-value">{{ selectedBooking.schedule?.departure_time | date:'EEE, d MMM y' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Jam</span>
+                <span class="info-value bold">{{ selectedBooking.schedule?.departure_time | date:'HH:mm' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Kursi</span>
+                <span class="info-value bold primary-text" style="font-size: 1.2rem;">{{ getSeatLabel(s) }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Armada</span>
+                <span class="info-value">{{ selectedBooking.schedule?.vehicle?.name || 'Shuttle' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Penumpang</span>
+                <span class="info-value">{{ selectedBooking.user?.name || '-' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">No. Tiket</span>
+                <span class="info-value mono">#TCK{{ selectedBooking.id }}{{ i > 0 ? '-' + i : '' }}</span>
+              </div>
+            </div>
+
+            <!-- Efek Potongan Kertas -->
+            <div class="torn-edge">
+              <div class="torn-left"></div>
+              <div class="dots"></div>
+              <div class="torn-right"></div>
+            </div>
+
+            <!-- Footer Tiket -->
+            <div class="ticket-footer-v2">
+              <div class="qr-placeholder">
+                <span class="material-symbols-outlined">qr_code_2</span>
+              </div>
+              <div class="footer-meta">
+                <div class="label">Booking Code</div>
+                <div class="value">{{ selectedBooking.booking_code || 'BOOK-' + selectedBooking.id }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ringkasan Bayar -->
+        <div class="grand-total-receipt ion-margin-top">
+          <div class="receipt-header">Ringkasan Pembayaran</div>
+          <div class="receipt-row">
+            <span>Subtotal ({{ selectedBooking._seats?.length || 1 }} Kursi)</span>
+            <span>Rp {{ (selectedBooking._base_subtotal || 0) | number:'1.0-0' }}</span>
+          </div>
+          <div class="receipt-row" *ngIf="selectedBooking.unique_code">
+            <span>Kode Unik</span>
+            <span class="text-primary">+{{ selectedBooking.unique_code }}</span>
+          </div>
+          <div class="receipt-divider"></div>
+          <div class="receipt-row total">
+            <span>Total Bayar</span>
+            <span class="total-value">Rp {{ (selectedBooking._total_price || 0) | number:'1.0-0' }}</span>
+          </div>
+          <div class="payment-confirmed-tag">
+            <span class="material-symbols-outlined">verified</span>
+            Lunas • {{ selectedBooking.updated_at | date:'dd MMM y, HH:mm' }}
+          </div>
+        </div>
+
+        <div class="ticket-actions-row ion-margin-top">
+          <!-- Button Lacak Perjalanan (Hanya muncul jika trip sedang aktif/dapat dilacak) -->
+          <ion-button expand="block" shape="round" color="secondary" *ngIf="isTrackable(selectedBooking)" (click)="viewTracking(selectedBooking); closeTicket()">
+            <span class="material-symbols-outlined ion-margin-end">explore</span>
+            Lacak Posisi Bus
+          </ion-button>
+
+          <ion-button expand="block" shape="round" color="dark" (click)="copyTicketNumber()">
+            <span class="material-symbols-outlined ion-margin-end">content_copy</span>
+            Salin Kode Booking
+          </ion-button>
+        </div>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<ng-container *ngIf="user$ | async as user">
+  <nav class="bottom-nav" *ngIf="user.role === 'customer'">
+    <button class="nav-item" routerLink="/dashboard">
+      <span class="material-symbols-outlined">home</span>
+      <span>{{ getTranslation('home') }}</span>
+    </button>
+    <button class="nav-item" routerLink="/schedule-list">
+      <span class="material-symbols-outlined">directions_bus</span>
+      <span>{{ getTranslation('schedule') }}</span>
+    </button>
+    <button class="nav-item active">
+      <span class="material-symbols-outlined">confirmation_number</span>
+      <span>{{ getTranslation('bookings') }}</span>
+    </button>
+    <button class="nav-item" routerLink="/profile">
+      <span class="material-symbols-outlined">person</span>
+      <span>{{ getTranslation('profile') }}</span>
+    </button>
+  </nav>
+</ng-container>

@@ -1,0 +1,141 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary" class="pt-safe">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/driver-trips" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ getTranslation('driverPanel') }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="driver-tracking-page">
+  <main class="p-4">
+    <!-- GPS Map Container -->
+    <section class="map-container mb-4">
+      <div id="map" style="height: 250px; border-radius: 12px; z-index: 1;"></div>
+      <div class="map-overlay">
+        <span class="status-indicator" [class.active]="gpsStatus === 'Aktif'"></span>
+        <span class="text-xs">{{ gpsStatus }} - {{ lastUpdateTime }}</span>
+      </div>
+    </section>
+
+    <!-- Start Button (If Scheduled) -->
+    <section class="start-panel" *ngIf="trip && trip.status === 'scheduled'">
+      <div class="info-box mb-4">
+        <p><strong>Perhatian:</strong> Perjalanan ini belum dimulai. Tekan tombol di bawah untuk memulai perjalanan dan terhubung ke GPS.</p>
+      </div>
+      <button type="button" class="update-btn" style="background: var(--ion-color-primary); color: white; width: 100%; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 16px;" (click)="startTrip()">
+        <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 8px;">play_arrow</span> Mulai Perjalanan
+      </button>
+    </section>
+
+    <!-- Status Toggle (If Started) -->
+    <section class="status-panel" *ngIf="trip && trip.status !== 'scheduled'">
+      <div class="header">
+        <h2>{{ getTranslation('tripStatus') }}</h2>
+        <div class="status-badge" [class]="trip.status">{{ trip.status | uppercase }}</div>
+      </div>
+
+      <div class="status-controls">
+        <button type="button" class="status-btn" [class.active]="trip.status === 'boarding'" [disabled]="trip.status === 'completed' || trip.status === 'cancelled_empty'" (click)="updateStatus('boarding')">{{ getTranslation('boarding') }}</button>
+        <button type="button" class="status-btn" [class.active]="trip.status === 'on-going'" [disabled]="trip.status === 'completed' || trip.status === 'cancelled_empty'" (click)="updateStatus('on-going')">{{ getTranslation('ongoing') }}</button>
+        <button type="button" class="status-btn" [class.active]="trip.status === 'arrived'" [disabled]="trip.status === 'completed' || trip.status === 'cancelled_empty'" (click)="updateStatus('arrived')">{{ getTranslation('arrived') }}</button>
+      </div>
+
+      <div class="status-actions">
+        <button type="button" class="status-action warn" [disabled]="trip.status === 'completed' || trip.status === 'cancelled_empty'" (click)="updateStatus('delayed')">{{ getTranslation('delay') }}</button>
+        <button type="button" class="status-action success" [disabled]="trip.status === 'completed' || trip.status === 'cancelled_empty'" (click)="updateStatus('completed')">{{ getTranslation('finishTrip') }}</button>
+      </div>
+
+      <div class="info-box" *ngIf="trip.status === 'on-going' || trip.status === 'boarding'">
+        <p>{{ getTranslation('updateStatusSuccess') }}. {{ getTranslation('updateLocation') }}...</p>
+      </div>
+    </section>
+
+    <!-- Trip Info Card -->
+    <section class="trip-card" *ngIf="trip">
+      <div class="card-header">
+        <div class="route">{{ trip.schedule?.origin }} → {{ trip.schedule?.destination }}</div>
+        <div class="bus-id">ID: {{ trip.schedule?.vehicle?.license_plate }}</div>
+      </div>
+
+
+
+      <div class="actions">
+        <button type="button" class="update-btn" (click)="updateLocation()">
+          <span class="material-symbols-outlined">my_location</span>
+          {{ getTranslation('updateLocation') }}
+        </button>
+      </div>
+    </section>
+
+    <!-- Shift Timer -->
+    <div class="shift-timer-card">
+      <div class="content">
+        <span class="label">{{ getTranslation('shiftEndsIn') }}</span>
+        <span class="time">{{ shiftTimer }}</span>
+      </div>
+      <span class="material-symbols-outlined bg-icon">timer</span>
+    </div>
+
+    <!-- Route stops timeline stepper -->
+    <section class="stops-section" *ngIf="trip && getStops().length > 0">
+      <div class="section-header">
+        <h3>Pemberhentian Rute</h3>
+        <span class="count">{{ getStops().length }} Halte</span>
+      </div>
+
+      <div class="stops-timeline">
+        <!-- Origin Node -->
+        <div class="stop-node-item" [class]="getStopStatus(trip.schedule.pickup_lng, trip.schedule.pickup_lat, 'origin')">
+          <div class="node-indicator"></div>
+          <div class="node-details">
+            <span class="name">{{ trip.schedule.pickup_name || trip.schedule.origin }}</span>
+            <span class="status-lbl">Titik Mulai</span>
+          </div>
+        </div>
+
+        <!-- Stop Nodes -->
+        <div class="stop-node-item" *ngFor="let stop of getStops()" [class]="getStopStatus(stop.coords[0], stop.coords[1], 'stop')">
+          <div class="node-indicator"></div>
+          <div class="node-details">
+            <span class="name">{{ stop.name }}</span>
+            <span class="status-lbl">{{ getStopStatusLabel(stop.coords[0], stop.coords[1]) }}</span>
+          </div>
+        </div>
+
+        <!-- Destination Node -->
+        <div class="stop-node-item" [class]="getStopStatus(trip.schedule.drop_off_lng, trip.schedule.drop_off_lat, 'destination')">
+          <div class="node-indicator"></div>
+          <div class="node-details">
+            <span class="name">{{ trip.schedule.drop_off_name || trip.schedule.destination }}</span>
+            <span class="status-lbl">Titik Selesai</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Passenger List -->
+    <section class="passenger-section">
+      <div class="section-header">
+        <h3>{{ getTranslation('passengerList') }}</h3>
+        <span class="count">{{ passengers.length }} {{ getTranslation('passengers') }}</span>
+      </div>
+
+      <div class="passenger-grid">
+        <div class="passenger-card" *ngFor="let p of passengers">
+          <div class="avatar">{{ p.user?.name?.substring(0, 2) | uppercase }}</div>
+          <div class="details">
+            <div class="name">{{ p.user?.name }}</div>
+            <div class="seat">{{ getTranslation('seat') }}: {{ getSeatLabel(p.seat) }}</div>
+          </div>
+          <span class="material-symbols-outlined text-green-500" *ngIf="p.status === 'booked' || p.status === 'completed'">check_circle</span>
+          <span class="material-symbols-outlined text-gray-300" *ngIf="p.status !== 'booked' && p.status !== 'completed'">radio_button_unchecked</span>
+        </div>
+      </div>
+
+      <div class="text-center py-8" *ngIf="passengers.length === 0">
+        <p class="text-gray-500">{{ getTranslation('noPassengers') }}</p>
+      </div>
+    </section>
+  </main>
+</ion-content>

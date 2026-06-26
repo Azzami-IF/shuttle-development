@@ -1,0 +1,72 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <button class="back-btn" (click)="goBack()" style="background: transparent; color: white; border: none; padding: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+    </ion-buttons>
+    <ion-title *ngIf="lang$ | async">{{ getTranslation('selectSeat') }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="seat-selection-page">
+  <section class="legend-container" *ngIf="lang$ | async">
+    <div class="legend-item">
+      <div class="box available"></div>
+      <span>{{ getTranslation('available') }}</span>
+    </div>
+    <div class="legend-item">
+      <div class="box selected"></div>
+      <span>{{ getTranslation('selected') }}</span>
+    </div>
+    <div class="legend-item">
+      <div class="box occupied"></div>
+      <span>{{ getTranslation('occupied') }}</span>
+    </div>
+  </section>
+
+  <main>
+    <ion-spinner *ngIf="loading" name="crescent" class="center-spinner"></ion-spinner>
+    <div class="bus-layout">
+      <div class="steering-wheel">
+        <span class="material-symbols-outlined text-[32px]">motion_photos_auto</span>
+      </div>
+
+      <div class="seat-rows">
+        <div class="seat-row" *ngFor="let row of rows">
+          <div class="pair">
+            <button class="seat"
+                    *ngFor="let seat of row.left"
+                    [class.selected]="selectedSeatIds.includes(seat.id)"
+                    [class.occupied]="seat.is_occupied"
+                    [disabled]="seat.is_occupied"
+                    (click)="selectSeat(seat.id)">
+              {{ seat.label }}
+            </button>
+          </div>
+          <div class="pair">
+            <button class="seat"
+                    *ngFor="let seat of row.right"
+                    [class.selected]="selectedSeatIds.includes(seat.id)"
+                    [class.occupied]="seat.is_occupied"
+                    [disabled]="seat.is_occupied"
+                    (click)="selectSeat(seat.id)">
+              {{ seat.label }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="selection-footer" *ngIf="lang$ | async">
+    <div class="price-info">
+      <div class="label">{{ getTranslation('seat') }}: <strong>{{ getSelectedSeatLabels() }}</strong></div>
+      <div class="amount">Rp {{ getTotalPrice() | number:'1.0-0' }}</div>
+    </div>
+    <button class="confirm-btn" [disabled]="selectedSeatIds.length === 0 || loading" (click)="confirmBooking()">
+      <span *ngIf="loading">Memproses...</span>
+      <span *ngIf="!loading">{{ getTranslation('confirm') }} ({{ selectedSeatIds.length }})</span>
+    </button>
+  </footer>
+</ion-content>

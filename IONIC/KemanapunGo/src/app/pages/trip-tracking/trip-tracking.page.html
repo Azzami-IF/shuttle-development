@@ -1,0 +1,152 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button [defaultHref]="homeRoute"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Live Tracking</ion-title>
+    <ion-buttons slot="end">
+      <!-- Demo simulator trigger button -->
+      <button (click)="startDemoSimulation()" style="background: linear-gradient(135deg, #f39c12, #e74c3c); color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; display: flex; align-items: center; gap: 4px; margin-right: 8px; cursor: pointer;">
+        <span class="material-symbols-outlined" style="font-size: 14px;">{{ isDemoSimulationActive ? 'stop' : 'play_arrow' }}</span>
+        {{ isDemoSimulationActive ? 'Stop' : 'Simulate' }}
+      </button>
+      <span [class]="'badge ' + getStatusBadgeClass(trip?.status)" style="margin-right: 8px;" *ngIf="trip?.status">
+        {{ getStatusLabel(trip.status) }}
+      </span>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="trip-tracking-page">
+  <div class="map-container">
+    <div id="map" style="width: 100%; height: 100%; z-index: 1;"></div>
+
+    <div class="map-overlay" *ngIf="trip?.status === 'on-going' || trip?.status === 'boarding'">
+      <div class="status-dot"></div>
+      <span class="status-text">{{ getStatusLabel(trip?.status) }}</span>
+    </div>
+  </div>
+
+  <div class="trip-info-sheet" *ngIf="trip">
+    <div class="handle"></div>
+
+    <div class="route-info">
+      <div class="location">
+        <span class="city">{{ trip.schedule?.origin }}</span>
+        <span class="label">Asal</span>
+      </div>
+      <span class="material-symbols-outlined icon">arrow_forward</span>
+      <div class="location text-right">
+        <span class="city">{{ trip.schedule?.destination }}</span>
+        <span class="label">Tujuan</span>
+      </div>
+    </div>
+
+    <!-- Stops timeline stepper -->
+    <div class="stops-timeline-container" *ngIf="trip && getStops().length > 0">
+      <div class="stops-header">Detail Pemberhentian Rute</div>
+      <div class="timeline-stepper">
+        <!-- Origin Node -->
+        <div class="timeline-node-item active-passed">
+          <div class="marker-dot-container">
+            <div class="marker-dot origin-dot"></div>
+            <div class="marker-line"></div>
+          </div>
+          <div class="marker-info">
+            <span class="stop-title">{{ trip.schedule?.pickup_name || trip.schedule?.origin }}</span>
+            <span class="stop-desc">Titik Keberangkatan</span>
+          </div>
+        </div>
+
+        <!-- Stop Nodes -->
+        <div class="timeline-node-item" *ngFor="let stop of getStops()" [class]="getStopStatus(stop.coords)">
+          <div class="marker-dot-container">
+            <div class="marker-dot stop-dot"></div>
+            <div class="marker-line"></div>
+          </div>
+          <div class="marker-info">
+            <span class="stop-title">{{ stop.name }}</span>
+            <span class="stop-desc">{{ getStopStatusLabel(stop.coords) }}</span>
+          </div>
+        </div>
+
+        <!-- Destination Node -->
+        <div class="timeline-node-item" [class]="trip?.status === 'arrived' || trip?.status === 'completed' ? 'active-passed' : 'pending'">
+          <div class="marker-dot-container">
+            <div class="marker-dot dest-dot"></div>
+          </div>
+          <div class="marker-info">
+            <span class="stop-title">{{ trip.schedule?.drop_off_name || trip.schedule?.destination }}</span>
+            <span class="stop-desc">Tujuan Akhir</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="eta-card" *ngIf="trip?.status === 'on-going'">
+      <span class="time">{{ formatETATime(calculateETA()) }}</span>
+      <div class="flex flex-col">
+        <span class="text-xs text-white/80 font-bold tracking-wider uppercase">Estimasi Waktu Tiba</span>
+      </div>
+      <span class="material-symbols-outlined ml-auto text-secondary">timer</span>
+    </div>
+
+    <div class="status-info-card" *ngIf="trip?.status === 'scheduled'">
+      <span class="material-symbols-outlined icon-warning">info</span>
+      <div class="flex flex-col">
+        <span class="label">Keberangkatan dijadwalkan pukul</span>
+        <span class="text-sm font-bold">{{ trip.schedule?.departure_time | date:'HH:mm' }}</span>
+      </div>
+    </div>
+
+    <div class="status-info-card" *ngIf="trip?.status === 'boarding'">
+      <span class="material-symbols-outlined icon-warning">boarding_group</span>
+      <div class="flex flex-col">
+        <span class="label">Bus sedang naik penumpang</span>
+        <span class="text-sm font-bold">Segera berangkat</span>
+      </div>
+    </div>
+
+    <div class="status-info-card" *ngIf="trip?.status === 'arrived'">
+      <span class="material-symbols-outlined icon-success">check_circle</span>
+      <div class="flex flex-col">
+        <span class="label">Bus telah tiba</span>
+        <span class="text-sm font-bold">{{ trip.schedule?.destination }}</span>
+      </div>
+    </div>
+
+    <div class="status-info-card" *ngIf="trip?.status === 'delayed'">
+      <span class="material-symbols-outlined icon-danger">schedule</span>
+      <div class="flex flex-col">
+        <span class="label">Bus mengalami keterlambatan</span>
+        <span class="text-sm font-bold">Mohon bersabar</span>
+      </div>
+    </div>
+
+    <div class="status-info-card" *ngIf="trip?.status === 'completed'">
+      <span class="material-symbols-outlined icon-secondary">task_alt</span>
+      <div class="flex flex-col">
+        <span class="label">Perjalanan telah selesai</span>
+        <span class="text-sm font-bold">Terima kasih telah bersama kami</span>
+      </div>
+    </div>
+
+    <div class="driver-card">
+      <div class="avatar">
+        <span class="material-symbols-outlined">person</span>
+      </div>
+      <div class="details">
+        <div class="name">{{ trip.schedule?.driver?.name || 'Driver' }}</div>
+        <div class="vehicle">{{ trip.schedule?.vehicle?.name }} • {{ trip.schedule?.vehicle?.license_plate }}</div>
+      </div>
+      <button class="call-btn">
+        <span class="material-symbols-outlined">call</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="text-center py-12" *ngIf="!trip">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p class="text-gray-500 mt-4">Memuat data perjalanan...</p>
+  </div>
+</ion-content>

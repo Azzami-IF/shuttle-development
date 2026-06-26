@@ -1,0 +1,144 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary" class="pt-safe">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/driver-dashboard" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ getTranslation('driverSchedule') }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="driver-trips-page">
+  <div class="content-wrapper pb-32">
+  <!-- Greeting Header -->
+  <section class="driver-header" *ngIf="user$ | async as user">
+    <div class="subtitle">{{ getTranslation('driverSchedule') | uppercase }}</div>
+    <h2>Hello, Captain {{ user.name }}</h2>
+    <div class="date-text">{{ getTranslation('agendaFor') }} {{ today | date:'EEEE, d MMM y' }}</div>
+  </section>
+
+  <!-- Summary Badge -->
+  <div class="assigned-badge">
+    <span class="material-symbols-outlined">event_available</span>
+    <span>{{ trips.length }} Perjalanan ditugaskan hari ini</span>
+  </div>
+
+  <div class="p-4">
+    <ion-searchbar placeholder="Cari origin, tujuan, atau unit" [(ngModel)]="searchTerm" (ionInput)="applySearch()" showCancelButton="focus"></ion-searchbar>
+  </div>
+
+  <!-- Active Trip Hero Card -->
+  <section class="hero-trip-card" *ngIf="activeTrip" style="border: 2px solid var(--ion-color-success, #2dd36f); margin-bottom: 16px;">
+    <div class="image-box">
+      <div class="trip-art" aria-hidden="true"></div>
+      <div class="overlay" style="background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(45, 211, 111, 0.2) 100%);"></div>
+      <div class="content">
+        <span class="badge" style="background: var(--ion-color-success, #2dd36f); color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">SEDANG BERJALAN</span>
+        <h3>{{ activeTrip.schedule?.origin }} → {{ activeTrip.schedule?.destination }}</h3>
+        <p class="text-[11px] text-white/80 mt-1 font-medium" *ngIf="activeTrip.schedule?.origin_terminal || activeTrip.schedule?.destination_terminal">
+          {{ activeTrip.schedule?.origin_terminal || '-' }} → {{ activeTrip.schedule?.destination_terminal || '-' }}
+        </p>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div class="info-grid">
+        <div class="item">
+          <span class="label">Waktu</span>
+          <span class="val">{{ activeTrip.schedule?.departure_time | date:'HH:mm' }}</span>
+        </div>
+        <div class="item">
+          <span class="label">Unit</span>
+          <span class="val">{{ activeTrip.schedule?.vehicle?.license_plate }}</span>
+        </div>
+      </div>
+      <button class="start-btn" style="background: var(--ion-color-success, #2dd36f);" [routerLink]="['/driver-tracking', { id: activeTrip.id }]">
+        <span class="material-symbols-outlined">near_me</span>
+        Lacak
+      </button>
+    </div>
+  </section>
+
+  <!-- Next Trip Hero Card -->
+  <section class="hero-trip-card" *ngIf="nextTrip">
+    <div class="image-box">
+      <div class="trip-art" aria-hidden="true"></div>
+      <div class="overlay"></div>
+      <div class="content">
+        <div class="badge">Keberangkatan Selanjutnya</div>
+        <h3>{{ nextTrip.schedule?.origin }} → {{ nextTrip.schedule?.destination }}</h3>
+        <p class="text-[11px] text-white/80 mt-1 font-medium" *ngIf="nextTrip.schedule?.origin_terminal || nextTrip.schedule?.destination_terminal">
+          {{ nextTrip.schedule?.origin_terminal || '-' }} → {{ nextTrip.schedule?.destination_terminal || '-' }}
+        </p>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div class="info-grid">
+        <div class="item">
+          <span class="label">Waktu</span>
+          <span class="val">{{ nextTrip.schedule?.departure_time | date:'HH:mm' }}</span>
+        </div>
+        <div class="item">
+          <span class="label">Unit</span>
+          <span class="val">{{ nextTrip.schedule?.vehicle?.license_plate }}</span>
+        </div>
+      </div>
+      <button class="start-btn" (click)="startTrip(nextTrip)">
+        <span class="material-symbols-outlined">play_arrow</span>
+        Mulai
+      </button>
+    </div>
+  </section>
+
+  <!-- Trip Summary Metrics -->
+  <section class="metrics-row">
+    <div class="metric-card">
+      <div class="label">
+        <span class="material-symbols-outlined">check_circle</span>
+        Terjadwal
+      </div>
+      <div class="val">{{ (nextTrip ? 1 : 0) + laterTrips.length }}</div>
+    </div>
+    <div class="metric-card">
+      <div class="label">
+        <span class="material-symbols-outlined">directions_bus</span>
+        Aktif
+      </div>
+      <div class="val">{{ activeTrip ? 1 : 0 }}</div>
+    </div>
+  </section>
+
+  <!-- Later Today List -->
+  <section class="later-today" *ngIf="filteredLaterTrips.length > 0">
+    <h4>Nanti Hari Ini</h4>
+    <div class="trip-item" *ngFor="let trip of filteredLaterTrips">
+      <div class="item-header">
+        <div class="status">TERJADWAL</div>
+        <div class="time">{{ trip.schedule?.departure_time | date:'HH:mm' }}</div>
+      </div>
+      <div class="route">
+        <div class="point">
+          <span class="material-symbols-outlined text-[14px]">circle</span>
+          <div>
+            <div>{{ trip.schedule?.origin }}</div>
+            <div class="text-[10px] text-gray-500" *ngIf="trip.schedule?.origin_terminal">{{ trip.schedule?.origin_terminal }}</div>
+          </div>
+        </div>
+        <div class="point end">
+          <span class="material-symbols-outlined text-[14px]">location_on</span>
+          <div>
+            <div>{{ trip.schedule?.destination }}</div>
+            <div class="text-[10px] text-gray-500" *ngIf="trip.schedule?.destination_terminal">{{ trip.schedule?.destination_terminal }}</div>
+          </div>
+        </div>
+      </div>
+      <button class="text-secondary font-bold text-sm mt-2 text-right" [routerLink]="['/driver-tracking', { id: trip.id }]">Detail</button>
+    </div>
+  </section>
+
+  <div class="text-center py-12" *ngIf="trips.length === 0">
+    <span class="material-symbols-outlined text-gray-400 text-[64px]">assignment_late</span>
+    <p class="text-gray-500 mt-4">Belum ada tugas perjalanan hari ini.</p>
+  </div>
+  </div>
+</ion-content>
+
+<app-bottom-nav></app-bottom-nav>

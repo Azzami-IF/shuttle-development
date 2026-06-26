@@ -1,0 +1,155 @@
+.onboarding-page {
+  --background: #faf8f3;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(16px + env(safe-area-inset-top, 0px)) 20px 20px;
+  min-height: calc(100vh - 180px);
+
+  .utility-bar {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+
+    .lang-selector {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      border: 1px solid var(--outline-variant);
+      border-radius: 9999px;
+      padding: 4px 12px;
+      background: rgba(255, 255, 255, 0.5);
+      font-size: 12px;
+      font-weight: 600;
+
+      .flag {
+        width: 16px;
+        height: 12px;
+        background: #e11d48;
+        border-radius: 2px;
+      }
+    }
+  }
+
+  .illustration-container {
+    width: 100%;
+    max-width: 360px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 0;
+    flex: 1;
+
+    .bus-illustration {
+      width: 100%;
+      height: auto;
+      max-height: 340px;
+      object-fit: contain;
+    }
+  }
+
+  .text-content {
+    width: 100%;
+    margin-bottom: 40px;
+
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a1a1a;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    p {
+      font-size: 16px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+  }
+
+
+}
+
+.bottom-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  margin: 0;
+  background: linear-gradient(180deg, #3d5445 0%, #2d3e33 100%);
+  border-top-left-radius: 32px;
+  border-top-right-radius: 32px;
+  padding: 20px 24px calc(16px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 -8px 32px rgba(16, 40, 33, 0.2);
+  transition: transform 300ms cubic-bezier(.2,.9,.2,1);
+  will-change: transform;
+  z-index: 90;
+
+  .sheet-handle {
+    width: 48px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 10px;
+    margin: 0 auto 8px;
+    cursor: pointer;
+  }
+
+  .sheet-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* generic button rules (applies to .btn and button) */
+  button,
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 16px;
+    border: none;
+    transition: transform 0.1s;
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+
+  /* primary CTA */
+  button.primary-btn,
+  .btn.btn-primary {
+    background: white;
+    color: #1a1a1a;
+  }
+
+  /* secondary CTA */
+  button.secondary-btn,
+  .btn.btn-secondary {
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    color: white;
+  }
+
+  .home-indicator {
+    width: 96px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.28);
+    border-radius: 2px;
+    margin: 6px auto 0;
+  }
+}
+
+/* helper to collapse the sheet (used by component via transform inline) */
+.bottom-sheet.collapsed {
+  transform: translateY(140px);
+}

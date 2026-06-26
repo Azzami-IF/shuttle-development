@@ -1,0 +1,169 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary" class="pt-safe">
+    <ion-title slot="start">
+      <div class="brand">
+        <img src="assets/icon/logo.png" alt="DriverpunGo Logo" style="width: 32px; height: 32px; object-fit: contain; border-radius: 8px;">
+      </div>
+    </ion-title>
+    <ion-buttons slot="end">
+      <button class="nav-btn" (click)="showPending()">
+        <span class="material-symbols-outlined">notifications</span>
+      </button>
+      <button class="nav-btn" type="button" aria-label="Logout" (click)="confirmLogout()">
+        <span class="material-symbols-outlined">logout</span>
+      </button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="driver-dashboard-page">
+  <div class="content-wrapper pb-32">
+
+  <main *ngIf="user$ | async as user">
+    <!-- Hero Section -->
+    <section class="hero-section hero-gradient">
+      <div class="decorative-blob"></div>
+      <div class="greeting-content">
+        <p class="greeting">Selamat Siang,</p>
+        <h2 class="user-name">{{ user.name | uppercase }}</h2>
+      </div>
+
+      <!-- Quick Metrics Card -->
+      <div class="metrics-card glass-panel">
+        <div class="metric-top">
+          <div class="status-info">
+            <div class="label">
+              <span class="material-symbols-outlined text-[16px]">account_circle</span>
+              Status Driver
+            </div>
+            <div class="status-val flex items-center gap-2">
+              <span class="dot active"></span>
+              On Duty
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="shift-info">
+            <div class="label">Perjalanan Hari Ini</div>
+            <div class="time">Aktif</div>
+          </div>
+        </div>
+        <div class="metric-bottom">
+          <div class="stat">
+            <span class="material-symbols-outlined text-secondary">stars</span>
+            <span class="count">4.9</span>
+            <span class="label">Rating</span>
+          </div>
+          <div class="badge premium">
+            <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+            Verified
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Access Actions -->
+    <section class="quick-actions">
+      <button class="action-btn" routerLink="/driver-trips">
+        <div class="icon-box">
+          <span class="material-symbols-outlined">calendar_today</span>
+        </div>
+        <span>Jadwal</span>
+      </button>
+      <button class="action-btn" routerLink="/driver-vehicle">
+        <div class="icon-box secondary">
+          <span class="material-symbols-outlined">directions_bus</span>
+        </div>
+        <span>Kendaraan</span>
+      </button>
+      <button class="action-btn" routerLink="/driver-history">
+        <div class="icon-box tertiary">
+          <span class="material-symbols-outlined">history</span>
+        </div>
+        <span>History</span>
+      </button>
+      <button class="action-btn" routerLink="/driver-status">
+        <div class="icon-box error">
+          <span class="material-symbols-outlined">route</span>
+        </div>
+        <span>Status</span>
+      </button>
+    </section>
+
+    <!-- Operational Info Section -->
+    <section class="info-section">
+      <h3 class="section-title">Informasi Operasional</h3>
+      <div class="info-grid">
+
+        <div class="info-item surface-high" (click)="showHelpDesk()">
+          <span class="material-symbols-outlined secondary">support_agent</span>
+          <span class="title">Help Desk</span>
+          <p>Bantuan teknis 24/7.</p>
+        </div>
+        <div class="info-item surface-high" (click)="showManual()">
+          <span class="material-symbols-outlined primary">description</span>
+          <span class="title">Manual</span>
+          <p>Panduan SOP Driver.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="next-trip-card">
+      <div class="card-head">
+        <div>
+          <span class="eyebrow">Trip Terjadwal</span>
+          <h3>Perjalanan Berikutnya</h3>
+        </div>
+        <button class="refresh-btn" (click)="refreshTripSummary()">
+          <span class="material-symbols-outlined">refresh</span>
+        </button>
+      </div>
+
+      <ng-container *ngIf="!tripSummaryLoading; else loadingTrip">
+        <div class="featured-trip" *ngIf="featuredTrip; else emptyTrip">
+          <div class="trip-main">
+            <div>
+              <p class="trip-route">{{ featuredTrip.schedule?.origin }} → {{ featuredTrip.schedule?.destination }}</p>
+              <p class="text-[11px] text-gray-500 mt-1" *ngIf="featuredTrip.schedule?.origin_terminal || featuredTrip.schedule?.destination_terminal">
+                {{ featuredTrip.schedule?.origin_terminal || '-' }} → {{ featuredTrip.schedule?.destination_terminal || '-' }}
+              </p>
+              <p class="trip-time">{{ formatTime(featuredTrip.schedule?.departure_time) }}</p>
+            </div>
+            <div class="trip-status">{{ getCountdownLabel(featuredTrip.schedule?.departure_time) }}</div>
+          </div>
+          <div class="trip-meta">
+            <span>Armada: {{ featuredTrip.schedule?.vehicle?.name || 'Belum ditetapkan' }}</span>
+            <span>Driver: {{ featuredTrip.schedule?.driver?.name || 'Belum ditetapkan' }}</span>
+          </div>
+          <button class="launch-trip-btn" routerLink="/driver-trips">
+            <span class="material-symbols-outlined">route</span>
+            Buka Monitoring Trip
+          </button>
+        </div>
+      </ng-container>
+
+      <ng-template #loadingTrip>
+        <div class="preview-state">Memuat trip terjadwal...</div>
+      </ng-template>
+
+      <ng-template #emptyTrip>
+        <div class="preview-state">Belum ada trip yang ditugaskan untuk driver ini.</div>
+      </ng-template>
+
+      <div class="preview-list" *ngIf="upcomingTrips.length">
+        <button class="preview-item" *ngFor="let trip of upcomingTrips" routerLink="/driver-trips">
+          <div>
+            <span class="preview-route">{{ trip.schedule?.origin }} → {{ trip.schedule?.destination }}</span>
+            <span class="text-[10px] text-gray-500 block mt-1" *ngIf="trip.schedule?.origin_terminal || trip.schedule?.destination_terminal">
+              {{ trip.schedule?.origin_terminal || '-' }} → {{ trip.schedule?.destination_terminal || '-' }}
+            </span>
+            <span class="preview-time">{{ formatTime(trip.schedule?.departure_time) }}</span>
+          </div>
+          <span class="preview-seat">{{ getCountdownLabel(trip.schedule?.departure_time) }}</span>
+        </button>
+      </div>
+    </section>
+  </main>
+</div>
+</ion-content>
+
+<app-bottom-nav></app-bottom-nav>

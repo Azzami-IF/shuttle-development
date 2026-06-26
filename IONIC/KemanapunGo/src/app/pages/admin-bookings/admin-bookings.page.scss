@@ -1,0 +1,231 @@
+.bookings-container {
+  padding: 16px;
+  background: #f5f5f5;
+}
+
+.error-card {
+  margin-bottom: 16px;
+  background: #ffebee;
+  border-left: 4px solid #f44336;
+
+  ion-card-content {
+    color: #c62828;
+  }
+}
+
+.filters-card {
+  margin-bottom: 16px;
+  border-radius: 8px;
+
+  ion-card-content {
+    padding: 12px;
+  }
+
+  ion-item {
+    margin-bottom: 12px;
+    --background: transparent;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  gap: 16px;
+
+  p {
+    color: #666;
+    font-size: 14px;
+  }
+}
+
+.bookings-card {
+  margin-bottom: 16px;
+  border-radius: 8px;
+
+  ion-card-header {
+    padding-bottom: 8px;
+  }
+
+  ion-list {
+    padding: 0;
+  }
+}
+
+.booking-item {
+  --padding-start: 12px;
+  --padding-end: 12px;
+  border-bottom: 1px solid #f0f0f0;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  ion-icon[slot="start"] {
+    font-size: 24px;
+    margin-right: 12px;
+  }
+
+  ion-label {
+    margin: 12px 0;
+  }
+
+  .booking-route {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+  }
+
+  .booking-meta {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+
+    span {
+      display: inline;
+
+      &.dot {
+        margin: 0 4px;
+        color: #999;
+      }
+    }
+  }
+
+  .booking-date {
+    font-size: 11px;
+    color: #999;
+  }
+
+  ion-badge {
+    margin: 0 4px;
+    font-size: 11px;
+  }
+
+  ion-button {
+    --padding-start: 8px;
+    --padding-end: 8px;
+  }
+}
+
+.empty-card {
+  margin-bottom: 16px;
+  border-radius: 8px;
+
+  .empty-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 48px 16px;
+    text-align: center;
+
+    ion-icon {
+      font-size: 64px;
+      color: #ccc;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      margin: 0 0 8px 0;
+      color: #666;
+    }
+
+    p {
+      margin: 0;
+      color: #999;
+      font-size: 14px;
+    }
+  }
+}
+
+.pagination-card {
+  margin-bottom: 16px;
+  border-radius: 8px;
+
+  ion-card-content {
+    padding: 16px;
+  }
+
+  .pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+
+    @media (max-width: 480px) {
+      flex-wrap: wrap;
+    }
+
+    .page-info {
+      color: #666;
+      font-size: 14px;
+      font-weight: 500;
+      min-width: 120px;
+      text-align: center;
+    }
+
+    ion-button {
+      flex: 1;
+      min-width: 100px;
+
+      @media (max-width: 480px) {
+        flex: none;
+      }
+    }
+  }
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .label {
+    font-weight: 600;
+    color: #666;
+    font-size: 14px;
+  }
+
+  span {
+    color: #333;
+    text-align: right;
+
+    &.price {
+      font-weight: 600;
+      color: #2ecc71;
+    }
+
+    &.reference {
+      font-family: monospace;
+      font-size: 12px;
+      color: #666;
+    }
+  }
+
+  ion-badge {
+    margin: 0;
+  }
+}
+
+.actions {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  ion-button {
+    margin: 0;
+  }
+}

@@ -1,0 +1,89 @@
+@import "../driver-dashboard/driver-dashboard.page.scss";
+
+.vehicle-hero {
+  position: relative;
+  height: 200px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  .vehicle-art {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #18281e 0%, #2d3e33 52%, #536349 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .vehicle-art::after {
+    content: '\e530'; /* Material icon for directions_bus */
+    font-family: 'Material Symbols Outlined';
+    font-size: 80px;
+    color: rgba(255, 255, 255, 0.15);
+    margin-bottom: 20px;
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+  }
+
+  .content {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    color: white;
+    h2 { margin: 0; font-size: 20px; font-weight: 700; }
+    p { margin: 4px 0 0; opacity: 0.8; }
+  }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  .stat-card {
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid var(--outline-variant);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .material-symbols-outlined { font-size: 24px; }
+    .info {
+      .label { display: block; font-size: 10px; color: var(--outline); text-transform: uppercase; }
+      .val { font-size: 16px; font-weight: 700; color: var(--ion-text-color); }
+    }
+  }
+}
+
+.specs-list {
+  .spec-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--surface-container);
+
+    .label { color: var(--outline); font-size: 14px; }
+    .val { font-weight: 600; color: var(--ion-text-color); }
+  }
+}
+
+.report-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(186, 26, 26, 0.05);
+  color: #ba1a1a;
+  border: 1px solid #ba1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 700;
+}

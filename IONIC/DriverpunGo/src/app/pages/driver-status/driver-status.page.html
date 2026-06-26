@@ -1,0 +1,76 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary" class="pt-safe">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/driver-dashboard" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detail Status</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="driver-status-page">
+  <div class="content-wrapper pb-32">
+  <!-- Weekly Summary (Bento Style) -->
+  <section class="summary-section">
+    <h2 class="section-title">Ringkasan Minggu Ini</h2>
+    <div class="summary-grid">
+      <div class="summary-card primary">
+        <div class="label">Total Perjalanan</div>
+        <div class="val">{{ summary.totalTrips }}</div>
+        <div class="trend">
+          <span class="material-symbols-outlined">trending_up</span>
+          +12% dari minggu lalu
+        </div>
+        <span class="material-symbols-outlined bg-icon">directions_bus</span>
+      </div>
+      <div class="summary-card secondary">
+        <div class="label">Jarak Tempuh</div>
+        <div class="val">{{ summary.totalDistance }} <small>km</small></div>
+        <div class="trend">
+          <span class="material-symbols-outlined">speed</span>
+          Efisiensi Optimal
+        </div>
+        <span class="material-symbols-outlined bg-icon">route</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- History List -->
+  <section class="history-section">
+    <div class="list-header">
+      <h3>Riwayat Perjalanan</h3>
+      <button class="filter-btn">
+        <span class="material-symbols-outlined">filter_list</span>
+        Filter
+      </button>
+    </div>
+
+    <div class="trip-list">
+      <div class="history-item" *ngFor="let trip of trips">
+        <div class="icon-box">
+          <span class="material-symbols-outlined">directions_bus</span>
+        </div>
+        <div class="details">
+          <div class="top-row">
+            <span class="date">{{ trip.completed_at | date:'d MMM y' }}</span>
+            <span class="dot">•</span>
+            <span class="time">{{ trip.started_at | date:'HH:mm' }} - {{ trip.completed_at | date:'HH:mm' }}</span>
+          </div>
+          <div class="route-name">{{ trip.schedule?.origin }} → {{ trip.schedule?.destination }}</div>
+          <div class="bus-tag">Unit: {{ trip.schedule?.vehicle?.license_plate }}</div>
+        </div>
+        <div class="status-col">
+          <div class="status-badge">Selesai</div>
+          <span class="material-symbols-outlined">chevron_right</span>
+        </div>
+      </div>
+
+      <div class="text-center py-12" *ngIf="trips.length === 0">
+        <span class="material-symbols-outlined text-gray-400 text-6xl">history</span>
+        <p class="text-gray-500 mt-4">Belum ada riwayat perjalanan.</p>
+      </div>
+    </div>
+  </section>
+  </div>
+</ion-content>
+
+<app-bottom-nav></app-bottom-nav>

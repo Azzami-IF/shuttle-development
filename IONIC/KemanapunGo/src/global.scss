@@ -1,0 +1,217 @@
+/*
+ * App Global CSS
+ * ----------------------------------------------------------------------------
+ * Put style rules here that you want to apply globally. These styles are for
+ * the entire app and not just one component. Additionally, this file can be
+ * used as an entry point to import other CSS/Sass files to be included in the
+ * output CSS.
+ * For more information on global stylesheets, visit the documentation:
+ * https://ionicframework.com/docs/layout/global-stylesheets
+ */
+
+/* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+
+/* Optional CSS utils that can be commented out */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+/**
+ * Ionic Dark Mode
+ * -----------------------------------------------------
+ * For more info, please see:
+ * https://ionicframework.com/docs/theming/dark-mode
+ */
+
+/* @import "@ionic/angular/css/palettes/dark.always.css"; */
+/* @import "@ionic/angular/css/palettes/dark.class.css"; */
+/* Disabled: system dark palette can cause inconsistent colors in embedded browser
+	(some embedded webviews report dark preference). Keep light theme consistent. */
+/* @import "@ionic/angular/css/palettes/dark.system.css"; */
+
+/* Mobile touch / Android improvements */
+:root {
+	--app-touch-target: 48px;
+}
+
+/* Modal fixes: page-scoped styles (component SCSS) don't apply to ion-modal overlay
+	 because modal content is rendered outside the page component. Provide global
+	 rules so modals (like change-password) render correctly. */
+ion-modal .modal-wrapper {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+}
+
+ion-modal .modal-wrapper .modal-content {
+	width: 100%;
+	max-width: 480px;
+	border-radius: 16px;
+	background: transparent;
+	box-shadow: 0 12px 36px rgba(24,40,30,0.12);
+	overflow: visible;
+}
+
+ion-modal .modal-wrapper .modal-content ion-content {
+	background: rgba(255,255,255,0.95);
+	border-radius: 12px;
+	padding: 16px;
+}
+
+/* Ensure inputs and modal buttons use full width inside modals */
+.custom-input {
+	width: 100% !important;
+	box-sizing: border-box;
+	padding: 12px 16px !important;
+	border-radius: 12px !important;
+}
+
+/* Default helpers for inputs paired with icons.
+	 These provide consistent icon positioning and ensure the input placeholder
+	 has enough left padding so it doesn't overlap the icon. Component-level
+	 styles may override specific sizes, but this gives a sensible global default. */
+.input-wrapper {
+	position: relative;
+}
+
+.input-wrapper .icon {
+	position: absolute;
+	left: 12px;
+	width: 28px;
+	height: 28px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--outline);
+	font-size: 18px;
+	pointer-events: none;
+	z-index: 2;
+}
+
+.input-wrapper .custom-input {
+	/* match component defaults (52px) plus a small gap; use !important to
+		 ensure this applies when pages import different global rules */
+	padding-left: 56px !important;
+}
+.btn-submit {
+	display: inline-block;
+	width: 100% !important;
+	padding: 12px 16px !important;
+	border-radius: 12px !important;
+	background: var(--ion-color-primary) !important;
+	color: #fff !important;
+	border: none !important;
+	font-weight: 700;
+}
+
+/* Enforce full-width within modal wrapper to avoid nested scoping issues */
+ion-modal .modal-wrapper .modal-content * {
+	max-width: 100% !important;
+	width: 100% !important;
+}
+
+ion-modal .modal-wrapper .modal-content .input-group {
+	width: 100% !important;
+}
+
+ion-modal .modal-wrapper .modal-content .modal-actions button {
+	width: 100% !important;
+}
+
+/* Ensure modal sizing and header styling for change-password modal */
+ion-modal {
+	--width: 100% !important;
+	--max-width: 480px !important;
+}
+
+ion-modal .modal-wrapper {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+ion-modal .modal-wrapper .modal-content {
+	max-width: 480px !important;
+	width: 100% !important;
+	margin: 0 auto !important;
+	overflow: visible !important;
+}
+
+ion-modal ion-header, ion-modal ion-header ion-toolbar {
+	--background: var(--ion-color-primary) !important;
+	background: var(--ion-color-primary) !important;
+	color: #fff !important;
+}
+
+ion-modal ion-header ion-title, ion-modal ion-header ion-toolbar ion-title {
+	color: #fff !important;
+	font-weight: 700 !important;
+}
+
+ion-modal ion-header ion-button, ion-modal ion-header ion-toolbar ion-button {
+	color: #fff !important;
+}
+
+
+/* Safe Area Utility Classes */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0);
+}
+.mb-safe {
+  margin-bottom: env(safe-area-inset-bottom, 0);
+}
+.mt-safe {
+  margin-top: env(safe-area-inset-top, 0);
+}
+
+/* Ensure bottom nav respects safe area and is tappable */
+.bottom-nav, nav.bottom-nav {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	padding-bottom: env(safe-area-inset-bottom, 0);
+	display: flex;
+	justify-content: space-around;
+	padding-left: var(--container-margin, 16px);
+	padding-right: var(--container-margin, 16px);
+	padding-top: 8px;
+	gap: 8px;
+	z-index: 60;
+}
+
+/* De-emphasize decorative icons and keep action icons full opacity */
+ion-icon { opacity: 0.85; transition: opacity 120ms ease; }
+ion-button ion-icon, a ion-icon, button ion-icon { opacity: 1; }
+
+/* Increase tap target defaults on mobile */
+button, ion-button, a.button-like { min-height: var(--app-touch-target); min-width: var(--app-touch-target); }
+
+/* Global Searchbar Polish */
+ion-searchbar {
+  --border-radius: 12px;
+  --box-shadow: none;
+  --background: var(--surface-container-lowest);
+  padding-left: 0;
+  padding-right: 0;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.search-filter, .search-box-container {
+  padding: 0 16px;
+}
+

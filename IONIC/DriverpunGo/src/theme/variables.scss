@@ -1,0 +1,9 @@
+// Ionic Variables and Theming. For more info, please see:
+// http://ionicframework.com/docs/theming/
+
+/** Ionic CSS Variables **/
+@import "../app/components/shared/design-system.scss";
+
+@media (prefers-color-scheme: dark) {
+  /* Dark mode is disabled for this project as per Serene Transit design which favors light/nature tones */
+}

@@ -1,0 +1,260 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary" class="pt-safe">
+    <ion-title>Admin Dashboard</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="refresh()" [disabled]="loading">
+        <span class="material-symbols-outlined" style="color: white; font-size: 24px;">refresh</span>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="admin-dashboard-content">
+  <ion-refresher slot="fixed" (ionRefresh)="refresh(); $event.target.complete()">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="dashboard-container">
+    <!-- Loading Spinner -->
+    <div *ngIf="loading" class="loading-container">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>Memuat data dashboard...</p>
+    </div>
+
+    <!-- Error Message -->
+    <ion-card *ngIf="error && !loading" class="error-card glass-panel">
+      <ion-card-content class="error-content">
+        <span class="material-symbols-outlined error-icon">error</span>
+        <div>
+          <h3>Gagal Memuat Data</h3>
+          <p>{{ error }}</p>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Dashboard Content -->
+    <div *ngIf="!loading && stats">
+      <!-- Welcome Hero Block -->
+      <section class="welcome-hero glass-panel">
+        <div class="hero-content">
+          <h2>Ringkasan Sistem 📊</h2>
+          <p>Pantau armada, jadwal, pemesanan, dan kinerja supir KemanapunGo secara real-time.</p>
+        </div>
+      </section>
+
+      <!-- Stats Cards Grid -->
+      <div class="stats-grid">
+        <div class="stat-card glass-panel" (click)="navigateTo('admin-vehicles')">
+          <div class="stat-icon vehicle">
+            <span class="material-symbols-outlined">directions_bus</span>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value">{{ stats.total_vehicles }}</div>
+            <div class="stat-label">Total Armada</div>
+          </div>
+          <span class="material-symbols-outlined arrow">chevron_right</span>
+        </div>
+
+        <div class="stat-card glass-panel" (click)="navigateTo('admin-schedules')">
+          <div class="stat-icon schedule">
+            <span class="material-symbols-outlined">calendar_month</span>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value">{{ stats.total_schedules }}</div>
+            <div class="stat-label">Total Jadwal</div>
+          </div>
+          <span class="material-symbols-outlined arrow">chevron_right</span>
+        </div>
+
+        <div class="stat-card glass-panel" (click)="navigateTo('admin-bookings')">
+          <div class="stat-icon booking">
+            <span class="material-symbols-outlined">confirmation_number</span>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value">{{ stats.total_bookings }}</div>
+            <div class="stat-label">Pemesanan</div>
+          </div>
+          <span class="material-symbols-outlined arrow">chevron_right</span>
+        </div>
+
+        <div class="stat-card glass-panel" (click)="navigateTo('admin-users')">
+          <div class="stat-icon user">
+            <span class="material-symbols-outlined">group</span>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value">{{ stats.total_users }}</div>
+            <div class="stat-label">Pengguna</div>
+          </div>
+          <span class="material-symbols-outlined arrow">chevron_right</span>
+        </div>
+
+        <div class="stat-card glass-panel" (click)="navigateTo('admin-drivers')">
+          <div class="stat-icon driver">
+            <span class="material-symbols-outlined">person</span>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value">{{ stats.total_drivers }}</div>
+            <div class="stat-label">Supir Aktif</div>
+          </div>
+          <span class="material-symbols-outlined arrow">chevron_right</span>
+        </div>
+
+        <div class="stat-card glass-panel">
+          <div class="stat-icon trip">
+            <span class="material-symbols-outlined">explore</span>
+          </div>
+          <div class="stat-info">
+            <div class="stat-value">{{ stats.active_trips }}</div>
+            <div class="stat-label">Trip Berjalan</div>
+          </div>
+          <span class="material-symbols-outlined arrow" style="opacity: 0.2;">lock</span>
+        </div>
+      </div>
+
+      <!-- System Health -->
+      <ion-card *ngIf="systemHealth" class="health-card glass-panel ion-no-border">
+        <ion-card-header>
+          <div class="card-header-icon-title">
+            <span class="material-symbols-outlined">dns</span>
+            <ion-card-title>Status Server & Sistem</ion-card-title>
+          </div>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="health-status">
+            <div class="status-row">
+              <span class="status-label">Kondisi Server:</span>
+              <ion-badge [color]="getHealthStatusColor()">{{ systemHealth.status }}</ion-badge>
+            </div>
+            <div class="status-row">
+              <span class="status-label">Koneksi Database:</span>
+              <ion-badge color="success">{{ systemHealth.database }}</ion-badge>
+            </div>
+            <div class="status-row">
+              <span class="status-label">API Gateway:</span>
+              <ion-badge color="success">{{ systemHealth.api }}</ion-badge>
+            </div>
+            <div class="status-row">
+              <span class="status-label">Penggunaan Memori:</span>
+              <span class="val">{{ systemHealth.memory_usage }}%</span>
+            </div>
+            <div class="status-row">
+              <span class="status-label">Beban CPU:</span>
+              <span class="val">{{ systemHealth.cpu_usage }}%</span>
+            </div>
+          </div>
+          <button class="health-btn" (click)="navigateTo('admin-system')">
+            <span class="material-symbols-outlined">settings_suggest</span>
+            Detail Status Sistem
+          </button>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Booking Chart -->
+      <ion-card *ngIf="bookingData.length > 0" class="chart-card glass-panel ion-no-border">
+        <ion-card-header>
+          <div class="card-header-icon-title">
+            <span class="material-symbols-outlined">analytics</span>
+            <ion-card-title>Tren Pemesanan (7 Hari Terakhir)</ion-card-title>
+          </div>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="chart-placeholder">
+            <div class="chart-bars">
+              <div *ngFor="let item of bookingData" class="chart-bar-container">
+                <div class="bar-wrapper">
+                  <div class="bar" [style.height.%]="(item.bookings / 10) * 100"></div>
+                </div>
+                <span class="val-label">{{ item.bookings }}</span>
+                <span class="date">{{ item.date | date: 'dd/MM' }}</span>
+              </div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Revenue Chart -->
+      <ion-card *ngIf="revenueData.length > 0" class="chart-card glass-panel ion-no-border">
+        <ion-card-header>
+          <div class="card-header-icon-title">
+            <span class="material-symbols-outlined">payments</span>
+            <ion-card-title>Tren Pendapatan (30 Hari Terakhir)</ion-card-title>
+          </div>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="chart-placeholder">
+            <div class="chart-bars">
+              <div *ngFor="let item of revenueData" class="chart-bar-container">
+                <div class="bar-wrapper">
+                  <div class="bar revenue" [style.height.%]="(item.revenue / 2000000) * 100"></div>
+                </div>
+                <span class="val-label" style="font-size: 8px;">{{ item.revenue / 1000 }}k</span>
+                <span class="date">{{ item.date | date: 'dd/MM' }}</span>
+              </div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Quick Actions -->
+      <ion-card class="actions-card glass-panel ion-no-border">
+        <ion-card-header>
+          <div class="card-header-icon-title">
+            <span class="material-symbols-outlined">dashboard_customize</span>
+            <ion-card-title>Aksi Cepat & Navigasi</ion-card-title>
+          </div>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="actions-grid">
+            <button class="action-btn" (click)="navigateTo('admin-users')">
+              <span class="material-symbols-outlined icon primary">group</span>
+              <span>Kelola Pengguna</span>
+            </button>
+            <button class="action-btn" (click)="navigateTo('admin-drivers')">
+              <span class="material-symbols-outlined icon secondary">person</span>
+              <span>Kelola Supir</span>
+            </button>
+            <button class="action-btn" (click)="navigateTo('admin-vehicles')">
+              <span class="material-symbols-outlined icon tertiary">directions_bus</span>
+              <span>Kelola Armada</span>
+            </button>
+            <button class="action-btn" (click)="navigateTo('admin-schedules')">
+              <span class="material-symbols-outlined icon warning">calendar_month</span>
+              <span>Kelola Jadwal</span>
+            </button>
+            <button class="action-btn" (click)="navigateTo('admin-bookings')">
+              <span class="material-symbols-outlined icon danger">confirmation_number</span>
+              <span>Verifikasi Tiket</span>
+            </button>
+            <button class="action-btn" (click)="navigateTo('admin-reports')">
+              <span class="material-symbols-outlined icon success">analytics</span>
+              <span>Laporan Kinerja</span>
+            </button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+</ion-content>
+
+<nav class="bottom-nav">
+  <button class="nav-item active">
+    <span class="material-symbols-outlined">dashboard</span>
+    <span>Dashboard</span>
+  </button>
+  <button class="nav-item" routerLink="/admin/admin-vehicles">
+    <span class="material-symbols-outlined">directions_bus</span>
+    <span>Armada</span>
+  </button>
+  <button class="nav-item" routerLink="/admin/admin-schedules">
+    <span class="material-symbols-outlined">calendar_month</span>
+    <span>Jadwal</span>
+  </button>
+  <button class="nav-item" routerLink="/admin/admin-drivers">
+    <span class="material-symbols-outlined">person</span>
+    <span>Supir</span>
+  </button>
+  <button class="nav-item" (click)="confirmLogout()">
+    <span class="material-symbols-outlined">logout</span>
+    <span>Logout</span>
+  </button>
+</nav>

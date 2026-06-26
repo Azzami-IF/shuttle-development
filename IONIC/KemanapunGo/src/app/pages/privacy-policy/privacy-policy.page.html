@@ -1,0 +1,118 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary" class="pt-safe">
+
+    <ion-title>
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-[20px]">security</span>
+        <span>Kebijakan Privasi</span>
+      </div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="privacy-page bg-gray-50">
+  <div class="p-4 pb-32">
+    <div class="policy-card">
+      <h1 class="policy-title">Kebijakan Privasi & Ketentuan Layanan</h1>
+      <p class="policy-meta">
+        KemanapunGo App — Layanan Penumpang<br>
+        Berlaku sejak & terakhir diperbarui:<br> {{ today | date:'d MMMM y' }}
+      </p>
+
+      <div class="policy-content mt-6 text-gray-700 text-sm leading-relaxed">
+        <p class="mb-4">
+          Selamat datang di <strong>KemanapunGo</strong> — platform pemesanan travel terpercaya milik Tim Pengembang KemanapunGo. Dokumen ini merupakan Kebijakan Privasi sekaligus Ketentuan Penggunaan Layanan yang berlaku bagi seluruh pengguna (Penumpang).
+        </p>
+        <p class="mb-6">
+          Dengan menggunakan layanan KemanapunGo, Anda dinyatakan telah membaca, memahami, dan menyetujui seluruh ketentuan yang tercantum di bawah ini.
+        </p>
+
+        <div class="policy-section">
+          <div class="section-header">
+            <span class="section-number">01</span>
+            <h2>Data Pribadi yang Kami Kumpulkan</h2>
+          </div>
+          <h3 class="subsection-title">1.1 Data Identitas & Akun</h3>
+          <p>
+            Saat mendaftar dan menggunakan KemanapunGo, kami mengumpulkan informasi berikut: Nama lengkap, email, nomor telepon, dan data relevan lainnya.
+          </p>
+        </div>
+
+        <div class="policy-section mt-6">
+          <div class="section-header">
+            <span class="section-number">02</span>
+            <h2>Mekanisme Pembayaran & Alur Transaksi</h2>
+          </div>
+          <p>
+            KemanapunGo menerapkan sistem pembayaran manual berbasis transfer bank atau layanan serupa yang diawasi oleh Administrator Platform.
+          </p>
+          <h3 class="subsection-title mt-4">2.1 Pembuatan Pesanan & Instruksi Pembayaran</h3>
+          <ul style="padding-left: 20px; margin-top: 8px;">
+            <li>Nama bank tujuan transfer milik Administrator Platform.</li>
+            <li>Nomor rekening bank beserta nama pemilik rekening yang terverifikasi.</li>
+            <li>Jumlah transfer yang harus dibayarkan secara tepat sesuai total pesanan.</li>
+            <li>Instruksi bahwa transfer harus dilakukan sebelum mengunggah bukti pembayaran.</li>
+          </ul>
+          <h3 class="subsection-title mt-4">2.2 Unggah Bukti Pembayaran</h3>
+          <p>
+            Setelah melakukan transfer, Penumpang wajib mengunggah bukti transfer yang sah ke dalam aplikasi untuk diverifikasi oleh Admin.
+          </p>
+        </div>
+
+        <div class="policy-section mt-6">
+          <div class="section-header">
+            <span class="section-number">03</span>
+            <h2>Biaya Layanan Platform & Peran Administrator</h2>
+          </div>
+          <h3 class="subsection-title">3.1 Biaya Layanan Platform (Platform Fee)</h3>
+          <p>
+            Untuk mendukung operasional dan pengembangan layanan, KemanapunGo membebankan <strong>biaya layanan platform</strong> dari setiap nilai transaksi yang berhasil diselesaikan, yang dapat ditambahkan pada total biaya tiket.
+          </p>
+        </div>
+
+        <div class="policy-section mt-6">
+          <div class="section-header">
+            <span class="section-number">04</span>
+            <h2>Keamanan Data & Perlindungan Privasi</h2>
+          </div>
+          <p>Kami berkomitmen untuk menjaga keamanan data pribadi Anda dengan menerapkan standar keamanan informasi yang tinggi:</p>
+          <ul style="padding-left: 20px; margin-top: 8px;">
+            <li>Seluruh data sensitif dienkripsi menggunakan protokol aman dalam transmisi data.</li>
+            <li>Kata sandi disimpan menggunakan algoritma hashing bcrypt yang tidak dapat dibalik.</li>
+            <li>Server kami dilindungi firewall berlapis dan dipantau 24 jam sehari, 7 hari seminggu.</li>
+          </ul>
+        </div>
+
+        <div class="policy-section mt-6">
+          <div class="section-header">
+            <span class="section-number">05</span>
+            <h2>Larangan & Sanksi</h2>
+          </div>
+          <p>Pengguna dilarang keras melakukan tindakan berikut di platform KemanapunGo:</p>
+          <ul style="padding-left: 20px; margin-top: 8px;">
+            <li>Mengunggah bukti pembayaran yang dipalsukan, direkayasa, atau tidak sesuai dengan transaksi sebenarnya.</li>
+            <li>Melakukan pemesanan fiktif untuk merugikan armada, pengemudi, atau penumpang lain.</li>
+            <li>Menggunakan akun untuk aktivitas penipuan, penyebaran konten ilegal, atau merugikan pengguna lain.</li>
+            <li>Mencoba mengakses data pengguna lain secara tidak sah atau memanipulasi sistem platform.</li>
+          </ul>
+          <p class="mt-4">
+            Pelanggaran terhadap ketentuan di atas dapat mengakibatkan <strong>penangguhan sementara atau penghapusan permanen akun</strong>, pemblokiran akses layanan, serta pelaporan ke pihak berwajib bila diperlukan.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<ion-footer class="ion-no-border">
+  <div class="fixed-bottom-bar">
+    <ion-item lines="none" class="bg-transparent" style="--background: transparent; --padding-start: 0; font-size: 13px; color: #475569;">
+      <ion-checkbox slot="start" [(ngModel)]="isChecked" color="primary"></ion-checkbox>
+      <ion-label class="ion-text-wrap font-medium">Saya telah membaca dan menyetujui Kebijakan Privasi</ion-label>
+    </ion-item>
+    <button class="agree-btn" [disabled]="!isChecked" [style.opacity]="isChecked ? '1' : '0.5'" (click)="agreeAndContinue()">
+      <span class="material-symbols-outlined">verified_user</span>
+      SETUJU & LANJUTKAN
+    </button>
+  </div>
+</ion-footer>

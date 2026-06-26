@@ -1,0 +1,360 @@
+@import "../../components/shared/design-system.scss";
+
+.schedule-list-page {
+  --background: var(--ion-background-color);
+
+  ion-content::part(scroll) {
+    padding-bottom: 144px;
+  }
+}
+
+.search-summary {
+  background: linear-gradient(135deg, #2d3e33 0%, #18281e 100%);
+  color: white;
+  padding: 16px var(--container-margin) 40px;
+
+  .search-form-card {
+    background: rgba(0, 0, 0, 0.25);
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    ion-searchbar {
+      padding: 0;
+      --background: rgba(255, 255, 255, 0.1);
+      --color: white;
+      --placeholder-color: rgba(255, 255, 255, 0.6);
+      --icon-color: rgba(255, 255, 255, 0.6);
+      --border-radius: 12px;
+      margin-bottom: 4px;
+    }
+
+    .route-inputs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .input-container {
+      flex: 1;
+      position: relative;
+    }
+
+    .input-box {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: all 0.25s ease;
+      height: 48px;
+
+      &:focus-within {
+        border-color: var(--ion-color-secondary, #3880ff);
+        box-shadow: 0 0 0 3px rgba(56, 128, 255, 0.18);
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .icon-left {
+        font-size: 20px;
+        margin-right: 6px;
+      }
+
+      ion-input {
+        --color: white;
+        --placeholder-color: rgba(255, 255, 255, 0.6);
+        --padding-start: 0px;
+        --padding-end: 0px;
+        font-size: 14px;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        --border-style: none;
+        --border-width: 0px;
+        --highlight-height: 0px;
+      }
+
+      /* Color-coding of icons */
+      .origin-icon {
+        color: #2ecc71 !important;
+      }
+      .dest-icon {
+        color: #ff7675 !important;
+      }
+    }
+
+    .arrow-icon {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.6);
+      flex-shrink: 0;
+    }
+
+    .date-strip-container {
+      margin-top: 4px;
+      width: 100%;
+      overflow: hidden;
+
+      .date-strip-scroll {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 4px 2px 8px;
+        
+        &::-webkit-scrollbar {
+          display: none;
+        }
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      .date-card {
+        flex: 0 0 62px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 10px 4px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.25s ease;
+
+        .day-label {
+          font-size: 9px;
+          color: rgba(255, 255, 255, 0.6);
+          font-weight: 500;
+          text-transform: uppercase;
+          margin-bottom: 2px;
+        }
+
+        .day-num {
+          font-size: 15px;
+          color: white;
+          font-weight: 700;
+        }
+
+        &.active {
+          background: var(--ion-color-secondary, #3880ff);
+          border-color: var(--ion-color-secondary, #3880ff);
+          box-shadow: 0 4px 10px rgba(56, 128, 255, 0.3);
+
+          .day-label {
+            color: rgba(255, 255, 255, 0.8);
+          }
+          .day-num {
+            color: white;
+          }
+        }
+
+        &.calendar-card {
+          background: rgba(255, 255, 255, 0.05);
+          border-style: dashed;
+
+          span {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2px;
+          }
+
+          .day-label {
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.6);
+          }
+        }
+      }
+    }
+
+    .suggestions-list {
+      position: absolute;
+      top: 52px;
+      left: 0;
+      width: 100%;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      z-index: 999;
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid var(--outline-variant);
+
+      .suggestion-header {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        color: var(--outline);
+        text-transform: uppercase;
+        background: rgba(0, 0, 0, 0.02);
+        padding: 8px 14px;
+        border-bottom: 1px solid var(--outline-variant);
+      }
+
+      .suggestion-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 14px;
+        font-size: 13px;
+        color: var(--ion-text-color);
+        cursor: pointer;
+        transition: background 0.1s ease;
+        border-bottom: 1px solid var(--outline-variant);
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        &:hover, &:active {
+          background: rgba(0, 0, 0, 0.05);
+        }
+
+        .icon-item {
+          font-size: 16px;
+          margin-right: 8px;
+        }
+      }
+    }
+  }
+}
+
+.filter-bar {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
+  margin: -24px var(--container-margin) 0;
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-around;
+
+  .filter-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ion-color-primary);
+
+    &.active {
+      background: rgba(24, 40, 30, 0.08);
+      padding: 8px 12px;
+      border-radius: 999px;
+    }
+  }
+}
+
+.schedule-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  margin: 16px var(--container-margin);
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--outline-variant);
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    .time-info {
+      .time { font-size: 18px; font-weight: 700; color: var(--ion-text-color); }
+      .date { font-size: 12px; color: var(--outline); margin-top: 2px; }
+    }
+
+    .price-info {
+      text-align: right;
+      .price { font-size: 18px; font-weight: 700; color: var(--ion-color-secondary); }
+      .seats { font-size: 12px; color: var(--ion-color-success); margin-top: 2px; }
+    }
+  }
+
+  .route-details {
+    margin-top: 16px;
+    display: flex;
+    gap: 12px;
+
+    .visual {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      .dot { width: 8px; height: 8px; border-radius: 50%; border: 2px solid var(--outline); }
+      .line { width: 1px; height: 20px; background: var(--outline-variant); }
+    }
+
+    .points {
+      flex: 1;
+      font-size: 14px;
+      color: var(--ion-text-color);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+  }
+
+  .vehicle-info {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--outline-variant);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--outline);
+    flex-wrap: wrap;
+
+    .amenities {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+      color: var(--ion-color-primary);
+    }
+
+    .action {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 8px;
+    }
+  }
+}
+
+.center-spinner {
+  display: block;
+  margin: 24px auto;
+}
+
+.empty-state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 350px;
+  text-align: center;
+  padding: 32px;
+
+  .material-symbols-outlined {
+    font-size: 72px;
+    color: var(--outline-variant);
+    margin-bottom: 16px;
+  }
+
+  p {
+    margin: 0;
+    color: var(--outline);
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 1.5;
+    max-width: 280px;
+  }
+}
+
+.bottom-nav {
+  @extend .shared-bottom-nav;
+}

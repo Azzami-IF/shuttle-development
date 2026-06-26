@@ -1,0 +1,64 @@
+<ion-content class="driver-login-page">
+  <header class="top-bar">
+    <div class="brand">
+      <img src="assets/icon/logo.png" alt="DriverpunGo Logo" class="w-8 h-8 rounded-md" style="width: 32px; height: 32px; object-fit: contain;">
+    </div>
+    <div class="version">Fleet Operations v1.0.4</div>
+  </header>
+
+  <main class="main-container">
+
+    <!-- Kolom Kanan: Form -->
+    <div class="login-form-container">
+      <div class="login-card-inner">
+        <div class="login-header">
+          <h2 class="title">{{ getTranslation('driverLogin') }}</h2>
+          <p class="subtitle">{{ getTranslation('driverLoginSubtitle') }}</p>
+        </div>
+
+        <form (submit)="onLogin($event)" class="form-stack">
+          <div class="input-group">
+            <label class="input-label">{{ getTranslation('driverIdOrEmail') }}</label>
+            <div class="input-wrapper">
+              <span class="material-symbols-outlined input-icon">contact_mail</span>
+              <input type="text" [(ngModel)]="loginData.email" name="email" placeholder="Contoh: DRV-8829 atau Email" required>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <div class="label-row">
+              <label class="input-label">{{ getTranslation('password') }}</label>
+              <a class="forgot-link">{{ getTranslation('forgot') }}</a>
+            </div>
+            <div class="input-wrapper">
+              <span class="material-symbols-outlined input-icon">lock</span>
+              <input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="loginData.password" name="password" placeholder="••••••••" required>
+              <button type="button" class="toggle-password" (click)="showPassword = !showPassword">
+                <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="options-row" style="display: flex; flex-direction: column; align-items: flex-start; gap: 8px;">
+            <label class="checkbox-container" style="display: flex; gap: 8px; align-items: flex-start;">
+              <input type="checkbox" [(ngModel)]="privacyAccepted" name="privacy" required style="margin-top: 2px;">
+              <span class="checkbox-label" style="font-size: 13px; line-height: 1.4;">
+                Saya telah membaca dan menyetujui 
+                <a routerLink="/privacy-policy" class="forgot-link" style="font-weight: 600; color: var(--ion-color-primary);">Kebijakan Privasi</a>
+              </span>
+            </label>
+          </div>
+
+          <button type="submit" class="login-btn-primary" [disabled]="isLoading || !privacyAccepted">
+            <span *ngIf="!isLoading">{{ getTranslation('loginBtn') }}</span>
+            <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+            <span class="material-symbols-outlined ml-2" *ngIf="!isLoading">arrow_forward</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <div class="bg-decorative-1"></div>
+  <div class="bg-decorative-2"></div>
+</ion-content>

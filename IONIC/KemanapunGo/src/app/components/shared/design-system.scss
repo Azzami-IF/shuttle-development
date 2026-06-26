@@ -1,0 +1,124 @@
+// Design System based on ShuttleSystemDesign (Serene Transit)
+
+:root {
+  --ion-font-family: 'Hanken Grotesk', sans-serif;
+
+  // Primary Colors (Nature/Forest Green tones)
+  --ion-color-primary: #18281e;
+  --ion-color-primary-rgb: 24, 40, 30;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #15231a;
+  --ion-color-primary-tint: #2f3e35;
+
+  --primary-container: #2d3e33;
+  --on-primary-container: #96a99b;
+
+  // Secondary Colors (Sage/Olive Green)
+  --ion-color-secondary: #536349;
+  --ion-color-secondary-rgb: 83, 99, 73;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #495740;
+  --ion-color-secondary-tint: #64735b;
+
+  // Surface and Background
+  --ion-background-color: #f8faf5;
+  --ion-background-color-rgb: 248, 250, 245;
+  --ion-text-color: #191c1a;
+  --ion-text-color-rgb: 25, 28, 26;
+
+  --surface-container: #edeeea;
+  --surface-container-low: #f2f4f0;
+  --surface-container-lowest: #ffffff;
+  --surface-container-high: #e7e9e4;
+  --surface-container-highest: #e1e3df;
+
+  --outline: #737873;
+  --outline-variant: #c3c8c2;
+
+  // Spacing and Radius
+  --border-radius-lg: 0.5rem;
+  --border-radius-xl: 0.75rem;
+  --border-radius-2xl: 1rem;
+  --border-radius-3xl: 2rem;
+  --container-margin: 20px;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.hero-gradient {
+  background: linear-gradient(180deg, #18281e 0%, #2d3e33 100%);
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.shared-bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  z-index: 100;
+  min-height: 80px;
+  background: var(--surface-container-lowest);
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 8px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -4px 12px rgba(24, 40, 30, 0.08);
+  box-sizing: border-box;
+
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--on-surface-variant);
+    gap: 4px;
+    transition: all 0.2s ease-in-out;
+    min-width: 64px;
+    padding: 8px;
+
+    &.active {
+      background: var(--primary-container) !important;
+      color: white !important;
+      border-radius: 9999px;
+      padding: 6px 20px;
+
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        color: white !important;
+      }
+
+      span {
+        color: white !important;
+        font-weight: 700;
+      }
+    }
+
+    .material-symbols-outlined {
+      font-size: 24px;
+    }
+
+    span {
+      font-size: 12px;
+      font-weight: 500;
+    }
+  }
+}

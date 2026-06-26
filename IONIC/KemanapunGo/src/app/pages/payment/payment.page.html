@@ -1,0 +1,243 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <button class="back-btn" (click)="goBack()">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+    </ion-buttons>
+    <ion-title *ngIf="lang$ | async">{{ getTranslation('manualTransfer') }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="payment-page">
+  <div class="container ion-padding">
+    <section class="progress-card card">
+      <div class="progress-header" *ngIf="lang$ | async">
+        <span class="material-symbols-outlined">model_training</span>
+        <h3>{{ getTranslation('paymentProgress') }}</h3>
+      </div>
+      <div class="stepper" *ngIf="lang$ | async">
+        <div class="step" *ngFor="let key of stepsKeys; let i = index" [class.active]="i + 1 <= currentStep">
+          <div class="dot">{{ i + 1 }}</div>
+          <span>{{ getTranslation(key) }}</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="state-card card loading" *ngIf="loadingBooking">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Memuat detail pembayaran...</p>
+    </div>
+
+    <div class="state-card card error" *ngIf="!loadingBooking && loadError">
+      <span class="material-symbols-outlined">error</span>
+      <h4>Terjadi Kendala</h4>
+      <p>{{ loadError }}</p>
+      <ion-button fill="outline" (click)="loadBooking()">Coba Lagi</ion-button>
+    </div>
+
+    <div class="state-card card empty" *ngIf="!loadingBooking && !loadError && !booking">
+      <span class="material-symbols-outlined">credit_card_off</span>
+      <h4>Data Booking Belum Tersedia</h4>
+      <p>Silakan lakukan pemesanan ulang untuk melanjutkan pembayaran.</p>
+      <ion-button color="primary" [routerLink]="[homeRoute]">Kembali ke Beranda</ion-button>
+    </div>
+
+    <div *ngIf="!loadingBooking && booking && screen === 'input'" class="content-stack">
+      <section class="card info-card" *ngIf="lang$ | async">
+        <div class="card-title">
+          <span class="material-symbols-outlined">person</span>
+          <h3>{{ getTranslation('customerInfo') }}</h3>
+        </div>
+        <div class="info-list">
+          <div class="row"><span>{{ getTranslation('customerName') }}</span><strong>{{ customerName }}</strong></div>
+          <div class="row"><span>{{ getTranslation('bookingNumber') }}</span><strong>{{ bookingNumber }}</strong></div>
+          <div class="row"><span>Email</span><strong>{{ customerEmail }}</strong></div>
+          <div class="row"><span>Invoice / Tagihan</span><strong>{{ invoiceLabel }}</strong></div>
+        </div>
+      </section>
+
+      <section class="card summary-card" *ngIf="lang$ | async">
+        <div class="card-title">
+          <span class="material-symbols-outlined">receipt_long</span>
+          <h3>{{ getTranslation('paymentSummary') }}</h3>
+        </div>
+        <div class="info-list" style="padding-bottom: 12px; border-bottom: 1px dashed #e2e8f0; margin-bottom: 12px;">
+          <div class="row">
+            <span>Rute</span>
+            <strong>{{ booking?.schedule?.origin }} &rarr; {{ booking?.schedule?.destination }}</strong>
+          </div>
+          <div class="row">
+            <span>{{ getTranslation('seatLabel') }}</span>
+            <strong>
+              <ng-container *ngIf="relatedBookings.length > 0">
+                <span *ngFor="let b of relatedBookings; let last = last">
+                  {{ getSeatLabel(b.seat) }}{{ !last ? ', ' : '' }}
+                </span>
+              </ng-container>
+              <ng-container *ngIf="relatedBookings.length === 0">
+                {{ getSeatLabel(booking?.seat) }}
+              </ng-container>
+            </strong>
+          </div>
+        </div>
+        <div class="row total-row">
+          <span>{{ getTranslation('totalBill') }}</span>
+          <strong>{{ formatCurrency(totalAmount) }}</strong>
+        </div>
+      </section>
+
+      <section class="card nominal-card" *ngIf="lang$ | async">
+        <div class="card-title">
+          <span class="material-symbols-outlined">payments</span>
+          <h3>{{ getTranslation('inputPaymentAmount') }}</h3>
+        </div>
+
+        <!-- Auto-filled amount display -->
+        <div class="autofill-amount" *ngIf="totalAmount > 0">
+          <div class="autofill-row">
+            <span class="material-symbols-outlined autofill-icon">bolt</span>
+            <span class="autofill-label">Harga otomatis terisi dari booking</span>
+          </div>
+          <div class="autofill-value">{{ formatCurrency(totalAmount) }}</div>
+        </div>
+
+        <ion-input
+          class="nominal-input"
+          type="text"
+          inputmode="numeric"
+          [value]="nominalDisplay"
+          placeholder="Rp 0"
+          (ionInput)="onNominalInput($event)">
+        </ion-input>
+        <p class="helper">Nominal dapat diubah jika perlu. Nominal akan diformat ke Rupiah (Rp).</p>
+      </section>
+
+      <div class="state-card card error compact" *ngIf="createError">
+        <span class="material-symbols-outlined">warning</span>
+        <p>{{ createError }}</p>
+      </div>
+    </div>
+
+    <div *ngIf="!loadingBooking && booking && screen === 'detail'" class="content-stack">
+      <section class="card detail-card" *ngIf="vaData && (lang$ | async)">
+        <div class="card-title">
+          <span class="material-symbols-outlined">account_balance</span>
+          <h3>{{ getTranslation('bankAccountDetail') }}</h3>
+        </div>
+
+        <div class="detail-list">
+          <div class="row"><span>{{ getTranslation('accountNumber') }} ({{ bankDetails?.bank_name?.split(' ')[0] || 'BANK' }})</span><strong class="mono">{{ vaData.vaNumber }}</strong></div>
+          <div class="row"><span>{{ getTranslation('bankName') }}</span><strong>{{ bankDetails?.bank_name || 'Loading...' }}</strong></div>
+          <div class="row"><span>{{ getTranslation('accountHolder') }}</span><strong>{{ bankDetails?.account_holder || '...' }}</strong></div>
+          <div class="row"><span>{{ getTranslation('transferAmount') }}</span><strong>{{ formatCurrency(vaData.amount) }}</strong></div>
+          <div class="row" *ngIf="vaData.uniqueCode">
+            <span>{{ getTranslation('uniqueCode') }}</span>
+            <strong class="text-primary">+{{ vaData.uniqueCode }}</strong>
+          </div>
+          <div class="row grand-total">
+            <span>{{ getTranslation('totalToTransfer') }}</span>
+            <strong class="text-success">{{ formatCurrency(vaData.amount + (vaData.uniqueCode || 0)) }}</strong>
+          </div>
+          <p class="ion-padding-top text-xs" style="color: var(--ion-color-danger); font-weight: 600;">
+            {{ getTranslation('paymentImportant') }}
+          </p>
+          <p class="ion-padding-bottom" style="font-size: 11px; color: var(--ion-color-medium);">
+            {{ getTranslation('paymentInstruction') }}
+          </p>
+          <div class="row">
+            <span>{{ getTranslation('paymentStatus') }}</span>
+            <ion-badge [color]="vaData.status === 'PAID' ? 'success' : (vaData.status === 'WAITING' ? 'secondary' : (vaData.status === 'EXPIRED' ? 'danger' : 'warning'))">
+              {{ getStatusLabel(vaData.status) }}
+            </ion-badge>
+          </div>
+          <div class="row"><span>{{ getTranslation('expiryLabel') }}</span><strong>{{ countdown }}</strong></div>
+        </div>
+
+        <!-- NEW: Upload Proof Section (Hanya muncul jika belum lunas & belum verifikasi) -->
+        <div class="upload-proof-section ion-padding-top" *ngIf="vaData.status !== 'PAID' && booking?.status !== 'pending_verification'">
+          <p class="section-label">Unggah Bukti Transfer</p>
+          <div class="upload-box" [class.has-preview]="!!proofPreview" (click)="fileInput.click()">
+            <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" hidden>
+            
+            <div class="upload-placeholder" *ngIf="!proofPreview">
+              <span class="material-symbols-outlined">add_a_photo</span>
+              <p>Ketuk untuk pilih foto struk</p>
+            </div>
+
+            <div class="proof-preview" *ngIf="proofPreview">
+              <img [src]="proofPreview" alt="Preview Bukti">
+              <div class="change-hint">
+                <span class="material-symbols-outlined">edit</span>
+                Ganti Foto
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUCCESS STATE -->
+        <div class="success-state ion-padding-top ion-text-center animate-in fade-in zoom-in duration-300" *ngIf="vaData.status === 'PAID'">
+          <div class="success-icon-wrap">
+            <span class="material-symbols-outlined">check_circle</span>
+          </div>
+          <h2 class="ion-no-margin">Pembayaran Berhasil!</h2>
+          <p class="ion-padding-horizontal">Tiket Anda telah dikonfirmasi oleh Admin. Selamat menikmati perjalanan Anda!</p>
+          
+          <ion-button expand="block" shape="round" color="primary" class="ion-margin-top action-btn" (click)="goHome()">
+            Selesai & Kembali ke Beranda
+          </ion-button>
+        </div>
+
+        <!-- PAYING / WAITING VERIFICATION -->
+        <div class="button-stack" *ngIf="vaData && vaData.status !== 'PAID'">
+          
+          <!-- UI Saat Menunggu Verifikasi -->
+          <ng-container *ngIf="booking?.status === 'pending_verification'">
+            <div class="state-card card compact ion-margin-bottom" style="background: #fff9e6; border: 1px solid #ffe58f;">
+              <span class="material-symbols-outlined" style="color: #faad14;">schedule</span>
+              <div class="ion-text-start">
+                <h4 style="margin: 0; color: #856404; font-size: 14px;">Menunggu Verifikasi Admin</h4>
+                <p style="margin: 4px 0 0; color: #856404; font-size: 12px; line-height: 1.4;">Bukti bayar Anda sedang diperiksa. Mohon tunggu kabar selanjutnya.</p>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Tombol Saat Belum Konfirmasi -->
+          <ng-container *ngIf="booking?.status !== 'pending_verification'">
+            <ion-button expand="block" fill="outline" color="dark" (click)="copyAccountNumber()" class="ion-margin-bottom">
+              <span class="material-symbols-outlined ion-margin-end">content_copy</span>
+              Salin Nomor Rekening
+            </ion-button>
+
+            <ion-button expand="block" shape="round" color="dark" (click)="uploadProofAndConfirm()" [disabled]="!selectedFile || isUploading">
+              {{ isUploading ? 'Mengirim...' : 'Konfirmasi Sudah Bayar' }}
+            </ion-button>
+          </ng-container>
+
+          <ion-button expand="block" fill="clear" color="success" (click)="checkPaymentStatus()">
+            <span class="material-symbols-outlined ion-margin-end">sync</span>
+            Cek Status Pembayaran
+          </ion-button>
+        </div>
+      </section>
+
+      <div class="state-card card empty" *ngIf="!vaData">
+        <span class="material-symbols-outlined">hourglass_disabled</span>
+        <h4>Info Transfer Belum Tersedia</h4>
+        <p>Silakan kembali ke input nominal untuk menyiapkan data transfer.</p>
+        <ion-button color="primary" (click)="backToNominalInput()">Kembali ke Input</ion-button>
+      </div>
+    </div>
+
+    <div class="sticky-footer pb-safe" *ngIf="!loadingBooking && booking && screen === 'input' && (lang$ | async)">
+      <div class="footer-info">
+        <span>Nominal Dibayar</span>
+        <strong>{{ formatCurrency(footerNominal) }}</strong>
+      </div>
+      <ion-button expand="block" color="primary" (click)="createVirtualAccount()" [disabled]="!canCreateVa" class="h-14">
+        <ion-spinner slot="start" *ngIf="isCreatingVa" name="dots"></ion-spinner>
+        {{ isCreatingVa ? 'Menyiapkan Data Transfer...' : getTranslation('continueToTransfer') }}
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

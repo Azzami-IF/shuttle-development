@@ -1,0 +1,202 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary" class="pt-safe">
+
+    <ion-title>Laporan & Analisis</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="reports-container">
+    <!-- Daily Report Section -->
+    <ion-card class="report-section">
+      <ion-card-header>
+        <ion-card-title>Daily Report</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item>
+          <ion-label>Select Date</ion-label>
+          <ion-input
+            [(ngModel)]="selectedDate"
+            (ionChange)="onDateChange()"
+            type="date"
+            [max]="getTodayDate()">
+          </ion-input>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Daily Loading -->
+    <div *ngIf="dailyLoading" class="loading-container">
+      <ion-spinner></ion-spinner>
+      <p>Loading daily report...</p>
+    </div>
+
+    <!-- Daily Error -->
+    <ion-card *ngIf="dailyError && !dailyLoading" class="error-card">
+      <ion-card-content>{{ dailyError }}</ion-card-content>
+    </ion-card>
+
+    <!-- Daily Report Data -->
+    <ng-container *ngIf="!dailyLoading && dailyReport">
+      <div class="metrics-grid">
+        <ion-card class="metric-card">
+          <ion-card-content>
+            <div class="metric-icon">
+              <ion-icon name="ticket"></ion-icon>
+            </div>
+            <div class="metric-value">{{ dailyReport.total_bookings }}</div>
+            <div class="metric-label">Bookings</div>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card class="metric-card">
+          <ion-card-content>
+            <div class="metric-icon">
+              <ion-icon name="car"></ion-icon>
+            </div>
+            <div class="metric-value">{{ dailyReport.completed_trips }}</div>
+            <div class="metric-label">Completed Trips</div>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card class="metric-card">
+          <ion-card-content>
+            <div class="metric-icon">
+              <ion-icon name="cash"></ion-icon>
+            </div>
+            <div class="metric-value">৳{{ dailyReport.total_revenue }}</div>
+            <div class="metric-label">Total Revenue</div>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card class="metric-card">
+          <ion-card-content>
+            <div class="metric-icon">
+              <ion-icon name="speedometer"></ion-icon>
+            </div>
+            <div class="metric-value">{{ dailyReport.total_distance }}km</div>
+            <div class="metric-label">Total Distance</div>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card class="metric-card">
+          <ion-card-content>
+            <div class="metric-icon">
+              <ion-icon name="person"></ion-icon>
+            </div>
+            <div class="metric-value">{{ dailyReport.active_drivers }}</div>
+            <div class="metric-label">Active Drivers</div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </ng-container>
+
+    <ion-card class="divider-card"></ion-card>
+
+    <!-- Monthly Report Section -->
+    <ion-card class="report-section">
+      <ion-card-header>
+        <ion-card-title>Monthly Report</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item>
+          <ion-label>Select Month</ion-label>
+          <ion-input
+            [(ngModel)]="selectedMonth"
+            (ionChange)="onMonthChange()"
+            type="month">
+          </ion-input>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Monthly Loading -->
+    <div *ngIf="monthlyLoading" class="loading-container">
+      <ion-spinner></ion-spinner>
+      <p>Loading monthly report...</p>
+    </div>
+
+    <!-- Monthly Error -->
+    <ion-card *ngIf="monthlyError && !monthlyLoading" class="error-card">
+      <ion-card-content>{{ monthlyError }}</ion-card-content>
+    </ion-card>
+
+    <!-- Monthly Report Data -->
+    <ng-container *ngIf="!monthlyLoading && monthlyReport">
+      <ion-card class="detailed-stats">
+        <ion-card-header>
+          <ion-card-title>{{ monthlyReport.month | date: 'MMMM yyyy' }} Statistics</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="stat-item">
+            <div class="stat-info">
+              <span class="stat-name">Total Bookings</span>
+              <span class="stat-desc">Number of bookings</span>
+            </div>
+            <div class="stat-value">{{ monthlyReport.total_bookings }}</div>
+          </div>
+
+          <div class="stat-item">
+            <div class="stat-info">
+              <span class="stat-name">Completed Trips</span>
+              <span class="stat-desc">Successfully delivered</span>
+            </div>
+            <div class="stat-value">{{ monthlyReport.completed_trips }}</div>
+          </div>
+
+          <div class="stat-item">
+            <div class="stat-info">
+              <span class="stat-name">Total Revenue</span>
+              <span class="stat-desc">Monthly earnings</span>
+            </div>
+            <div class="stat-value revenue">৳{{ monthlyReport.total_revenue }}</div>
+          </div>
+
+          <div class="stat-item">
+            <div class="stat-info">
+              <span class="stat-name">Average Rating</span>
+              <span class="stat-desc">Customer satisfaction</span>
+            </div>
+            <div class="stat-value">
+              <span class="rating">★ {{ monthlyReport.average_rating.toFixed(1) }}</span>
+            </div>
+          </div>
+
+          <div class="stat-item">
+            <div class="stat-info">
+              <span class="stat-name">Active Drivers</span>
+              <span class="stat-desc">Operating drivers</span>
+            </div>
+            <div class="stat-value">{{ monthlyReport.active_drivers }}</div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Progress Visualization -->
+      <ion-card class="progress-card">
+        <ion-card-header>
+          <ion-card-title>Performance</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="progress-item">
+            <div class="progress-label">Revenue Target Achievement</div>
+            <ion-progress-bar
+              [value]="getRevenueProgress(monthlyReport)"
+              color="success">
+            </ion-progress-bar>
+            <div class="progress-value">{{ getRevenueProgress(monthlyReport) | number: '1.0-0' }}%</div>
+          </div>
+
+          <div class="progress-item">
+            <div class="progress-label">Customer Rating</div>
+            <ion-progress-bar
+              [value]="monthlyReport.average_rating / 5"
+              [color]="getRatingColor(monthlyReport.average_rating)">
+            </ion-progress-bar>
+            <div class="progress-value">{{ monthlyReport.average_rating.toFixed(1) }}/5.0</div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </ng-container>
+  </div>
+</ion-content>

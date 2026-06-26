@@ -1,0 +1,147 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary" class="pt-safe">
+    <ion-title>Manajemen Jadwal</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openCreateModal()" color="light">
+        <ion-icon name="add-outline" slot="start"></ion-icon>
+        Jadwal Baru
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="loadSchedules(1); $event.target.complete()">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="schedules-container">
+    <!-- Error Message -->
+    <ion-card *ngIf="error" class="error-card">
+      <ion-card-content>{{ error }}</ion-card-content>
+    </ion-card>
+
+    <!-- Search Filter -->
+    <ion-card class="search-card">
+      <ion-card-content>
+        <ion-item>
+          <ion-label position="floating">Search by route</ion-label>
+          <ion-input
+            [(ngModel)]="searchQuery"
+            (ionChange)="onSearchChange()"
+            placeholder="Enter origin or destination">
+          </ion-input>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-container">
+      <ion-spinner></ion-spinner>
+      <p>Loading schedules...</p>
+    </div>
+
+    <!-- Schedules List -->
+    <ion-card *ngIf="!loading && schedules.length > 0" class="schedules-card">
+      <ion-card-header>
+        <ion-card-title>Schedules ({{ pagination.total }})</ion-card-title>
+      </ion-card-header>
+      <ion-list>
+        <ion-item *ngFor="let schedule of schedules" class="schedule-item">
+          <ion-icon name="bus" slot="start" color="primary"></ion-icon>
+          <ion-label>
+            <div class="route">
+              <span class="location">{{ schedule.origin }}</span>
+              <ion-icon name="arrow-forward" class="arrow"></ion-icon>
+              <span class="location">{{ schedule.destination }}</span>
+            </div>
+            <div class="schedule-meta">
+              <span>{{ schedule.departure_time | date: 'MMM dd, HH:mm' }}</span>
+              <span class="dot">·</span>
+              <span>{{ getVehicleDisplay(schedule) }}</span>
+              <span class="dot">·</span>
+              <span>{{ getDriverDisplay(schedule) }}</span>
+            </div>
+            <div class="price-seats">
+              <span class="price">৳{{ schedule.price }}</span>
+              <span class="seats">
+                <ion-badge [color]="getSeatsAvailabilityColor(schedule.available_seats, schedule.total_seats)">
+                  {{ schedule.available_seats }}/{{ schedule.total_seats }} seats
+                </ion-badge>
+              </span>
+            </div>
+          </ion-label>
+          <ion-button
+            slot="end"
+            fill="clear"
+            size="small"
+            (click)="deleteSchedule(schedule)"
+            color="danger">
+            <ion-icon name="trash"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ion-card>
+
+    <!-- Empty State -->
+    <ion-card *ngIf="!loading && schedules.length === 0" class="empty-card">
+      <ion-card-content class="empty-content">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <h2>No Schedules Found</h2>
+        <p>Create a new schedule to get started</p>
+        <ion-button (click)="openCreateModal()" color="primary">
+          <ion-icon name="add" slot="start"></ion-icon>
+          Add Schedule
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Pagination -->
+    <ion-card *ngIf="!loading && pagination.last_page > 1" class="pagination-card">
+      <ion-card-content>
+        <div class="pagination-controls">
+          <ion-button
+            (click)="prevPage()"
+            [disabled]="pagination.current_page === 1"
+            fill="outline">
+            <ion-icon name="chevron-back" slot="start"></ion-icon>
+            Previous
+          </ion-button>
+          <span class="page-info">
+            Page {{ pagination.current_page }} of {{ pagination.last_page }}
+          </span>
+          <ion-button
+            (click)="nextPage()"
+            [disabled]="pagination.current_page === pagination.last_page"
+            fill="outline">
+            Next
+            <ion-icon name="chevron-forward" slot="end"></ion-icon>
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>
+
+<nav class="bottom-nav">
+  <button class="nav-item" routerLink="/admin/dashboard">
+    <span class="material-symbols-outlined">dashboard</span>
+    <span>Dashboard</span>
+  </button>
+  <button class="nav-item" routerLink="/admin/admin-vehicles">
+    <span class="material-symbols-outlined">directions_bus</span>
+    <span>Armada</span>
+  </button>
+  <button class="nav-item active">
+    <span class="material-symbols-outlined">calendar_month</span>
+    <span>Jadwal</span>
+  </button>
+  <button class="nav-item" routerLink="/admin/admin-drivers">
+    <span class="material-symbols-outlined">person</span>
+    <span>Supir</span>
+  </button>
+  <button class="nav-item" (click)="confirmLogout()">
+    <span class="material-symbols-outlined">logout</span>
+    <span>Logout</span>
+  </button>
+</nav>

@@ -1,0 +1,126 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary" class="pt-safe">
+
+    <ion-title>Manajemen Pengguna</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openCreateModal()">
+        <ion-icon name="add-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="loadUsers(1); $event.target.complete()">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="users-container">
+    <!-- Error Message -->
+    <ion-card *ngIf="error" class="error-card">
+      <ion-card-content>{{ error }}</ion-card-content>
+    </ion-card>
+
+    <!-- Filters -->
+    <ion-card class="filters-card">
+      <ion-card-content>
+        <ion-item>
+          <ion-label position="floating">Search by name, email, or phone</ion-label>
+          <ion-input
+            [(ngModel)]="searchQuery"
+            (ionChange)="onSearchChange()"
+            placeholder="Enter search term">
+          </ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Filter by role</ion-label>
+          <ion-select [(ngModel)]="filterRole" (ionChange)="onFilterChange()">
+            <ion-select-option value="">All Roles</ion-select-option>
+            <ion-select-option *ngFor="let role of roles" [value]="role">
+              {{ role | titlecase }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-container">
+      <ion-spinner></ion-spinner>
+      <p>Loading users...</p>
+    </div>
+
+    <!-- Users List -->
+    <ion-card *ngIf="!loading && users.length > 0" class="users-card">
+      <ion-card-header>
+        <ion-card-title>Users ({{ pagination.total }})</ion-card-title>
+      </ion-card-header>
+      <ion-list>
+        <ion-item *ngFor="let user of users" class="user-item">
+          <ion-label>
+            <div class="user-name">{{ user.name }}</div>
+            <div class="user-details">
+              <span>{{ user.email }}</span> · <span>{{ user.phone }}</span>
+            </div>
+          </ion-label>
+          <ion-badge [color]="getRoleBadgeColor(user.role)" slot="start">
+            {{ user.role | titlecase }}
+          </ion-badge>
+          <ion-badge [color]="getStatusBadgeColor(user.status)" slot="start">
+            {{ user.status }}
+          </ion-badge>
+          <ion-button
+            slot="end"
+            fill="clear"
+            size="small"
+            (click)="openEditModal(user)"
+            color="primary">
+            <ion-icon name="create"></ion-icon>
+          </ion-button>
+          <ion-button
+            slot="end"
+            fill="clear"
+            size="small"
+            (click)="deleteUser(user)"
+            color="danger">
+            <ion-icon name="trash"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ion-card>
+
+    <!-- Empty State -->
+    <ion-card *ngIf="!loading && users.length === 0" class="empty-card">
+      <ion-card-content class="empty-content">
+        <ion-icon name="people-outline"></ion-icon>
+        <h2>No Users Found</h2>
+        <p>Try adjusting your search or filters</p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Pagination -->
+    <ion-card *ngIf="!loading && pagination.last_page > 1" class="pagination-card">
+      <ion-card-content>
+        <div class="pagination-controls">
+          <ion-button
+            (click)="prevPage()"
+            [disabled]="pagination.current_page === 1"
+            fill="outline">
+            <ion-icon name="chevron-back" slot="start"></ion-icon>
+            Previous
+          </ion-button>
+          <span class="page-info">
+            Page {{ pagination.current_page }} of {{ pagination.last_page }}
+          </span>
+          <ion-button
+            (click)="nextPage()"
+            [disabled]="pagination.current_page === pagination.last_page"
+            fill="outline">
+            Next
+            <ion-icon name="chevron-forward" slot="end"></ion-icon>
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

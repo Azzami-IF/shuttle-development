@@ -1,0 +1,49 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/driver-dashboard" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ getTranslation('profile') }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="driver-profile-page">
+  <main class="p-4" *ngIf="user$ | async as user">
+    <div class="profile-card glass-panel">
+      <div class="avatar">
+        <span class="material-symbols-outlined text-[48px]">person</span>
+      </div>
+      <div class="info">
+        <h2>{{ user.name }}</h2>
+        <p>{{ user.email }}</p>
+        <p *ngIf="user.phone">{{ user.phone }}</p>
+      </div>
+    </div>
+
+    <div class="menu-list mt-8">
+      <button class="menu-item" routerLink="/driver-account">
+        <span class="material-symbols-outlined">badge</span>
+        <span>{{ getTranslation('accountInfo') }}</span>
+        <span class="material-symbols-outlined ml-auto">chevron_right</span>
+      </button>
+      <button class="menu-item" (click)="changeLanguage()">
+        <span class="material-symbols-outlined">language</span>
+        <span>{{ getTranslation('language') }}</span>
+        <span class="ml-auto" style="font-weight: 400; font-size: 13px; color: var(--outline);">{{ currentLanguage === 'id' ? 'Indonesia' : 'English' }}</span>
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+      <button class="menu-item" routerLink="/driver-help">
+        <span class="material-symbols-outlined">help</span>
+        <span>{{ getTranslation('helpCenter') }}</span>
+        <span class="material-symbols-outlined ml-auto">chevron_right</span>
+      </button>
+
+      <button class="menu-item logout-btn mt-8" type="button" (click)="confirmLogout()">
+        <span class="material-symbols-outlined">logout</span>
+        <span>{{ getTranslation('logout') }}</span>
+      </button>
+    </div>
+  </main>
+</ion-content>
+
+<app-bottom-nav></app-bottom-nav>

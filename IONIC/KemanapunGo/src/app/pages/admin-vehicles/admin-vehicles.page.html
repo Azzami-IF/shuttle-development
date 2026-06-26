@@ -1,0 +1,143 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary" class="pt-safe">
+    <ion-title>Manajemen Armada</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openCreateModal()" color="light">
+        <ion-icon name="add-outline" slot="start"></ion-icon>
+        Armada Baru
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="admin-vehicles-content">
+  <ion-refresher slot="fixed" (ionRefresh)="loadVehicles(1); $event.target.complete()">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="vehicles-container">
+    <!-- Error Message -->
+    <ion-card *ngIf="error" class="error-card glass-panel">
+      <ion-card-content>{{ error }}</ion-card-content>
+    </ion-card>
+
+    <!-- Search Filter -->
+    <ion-card class="search-card glass-panel">
+      <ion-card-content>
+        <ion-item lines="none" class="search-item">
+          <ion-icon name="search-outline" slot="start"></ion-icon>
+          <ion-input
+            [(ngModel)]="searchQuery"
+            (ionChange)="onSearchChange()"
+            placeholder="Cari nama armada atau plat nomor...">
+          </ion-input>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-container">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>Memuat data armada...</p>
+    </div>
+
+    <!-- Vehicles List -->
+    <ion-card *ngIf="!loading && vehicles.length > 0" class="vehicles-card glass-panel">
+      <ion-card-header>
+        <ion-card-title>Daftar Kendaraan ({{ pagination.total }})</ion-card-title>
+      </ion-card-header>
+      <ion-list>
+        <ion-item *ngFor="let vehicle of vehicles" class="vehicle-item">
+          <ion-icon [name]="getTypeIcon(vehicle.capacity > 8 ? 'van' : 'car')" slot="start" color="primary"></ion-icon>
+          <ion-label>
+            <div class="vehicle-title">
+              {{ vehicle.name }}
+            </div>
+            <div class="vehicle-meta">
+              <span class="plate">{{ vehicle.license_plate }}</span>
+              <span class="dot">·</span>
+              <span class="seats">{{ vehicle.capacity }} Kursi</span>
+            </div>
+          </ion-label>
+          <div class="actions" slot="end">
+            <ion-button
+              fill="clear"
+              size="small"
+              (click)="openEditModal(vehicle)"
+              color="primary">
+              <ion-icon name="create-outline"></ion-icon>
+            </ion-button>
+            <ion-button
+              fill="clear"
+              size="small"
+              (click)="deleteVehicle(vehicle)"
+              color="danger">
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
+          </div>
+        </ion-item>
+      </ion-list>
+    </ion-card>
+
+    <!-- Empty State -->
+    <ion-card *ngIf="!loading && vehicles.length === 0" class="empty-card glass-panel">
+      <ion-card-content class="empty-content">
+        <span class="material-symbols-outlined" style="font-size: 64px; color: #c4cdc1; margin-bottom: 12px;">directions_bus</span>
+        <h2>Belum Ada Kendaraan</h2>
+        <p>Silakan buat data armada pertama Anda untuk memulai.</p>
+        <ion-button (click)="openCreateModal()" color="primary">
+          <ion-icon name="add-outline" slot="start"></ion-icon>
+          Tambah Kendaraan
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Pagination -->
+    <ion-card *ngIf="!loading && pagination.last_page > 1" class="pagination-card glass-panel">
+      <ion-card-content>
+        <div class="pagination-controls">
+          <ion-button
+            (click)="prevPage()"
+            [disabled]="pagination.current_page === 1"
+            fill="outline">
+            <ion-icon name="chevron-back" slot="start"></ion-icon>
+            Sebelumnya
+          </ion-button>
+          <span class="page-info">
+            Halaman {{ pagination.current_page }} dari {{ pagination.last_page }}
+          </span>
+          <ion-button
+            (click)="nextPage()"
+            [disabled]="pagination.current_page === pagination.last_page"
+            fill="outline">
+            Selanjutnya
+            <ion-icon name="chevron-forward" slot="end"></ion-icon>
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>
+
+<nav class="bottom-nav">
+  <button class="nav-item" routerLink="/admin/dashboard">
+    <span class="material-symbols-outlined">dashboard</span>
+    <span>Dashboard</span>
+  </button>
+  <button class="nav-item active">
+    <span class="material-symbols-outlined">directions_bus</span>
+    <span>Armada</span>
+  </button>
+  <button class="nav-item" routerLink="/admin/admin-schedules">
+    <span class="material-symbols-outlined">calendar_month</span>
+    <span>Jadwal</span>
+  </button>
+  <button class="nav-item" routerLink="/admin/admin-drivers">
+    <span class="material-symbols-outlined">person</span>
+    <span>Supir</span>
+  </button>
+  <button class="nav-item" (click)="confirmLogout()">
+    <span class="material-symbols-outlined">logout</span>
+    <span>Logout</span>
+  </button>
+</nav>

@@ -1,0 +1,342 @@
+.driver-tracking-page {
+  --background: var(--ion-background-color);
+}
+
+.status-panel {
+  background: var(--surface-container-lowest);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(24, 40, 30, 0.06);
+  border: 1px solid var(--outline-variant);
+  margin-bottom: 24px;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    h2 { font-size: 18px; font-weight: 700; margin: 0; color: var(--ion-color-primary); }
+
+    .status-badge {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+
+      &.scheduled { background: var(--surface-container-high); color: var(--outline); }
+      &.boarding { background: #fffbeb; color: #b45309; border: 1px solid #fef3c7; }
+      &.on-going { background: #f0fdf4; color: #15803d; border: 1px solid #dcfce7; }
+      &.arrived { background: #eff6ff; color: #1d4ed8; border: 1px solid #dbeafe; }
+      &.delayed { background: #fef2f2; color: #b91c1c; border: 1px solid #fee2e2; }
+      &.completed { background: var(--ion-color-primary); color: white; }
+    }
+  }
+
+  .status-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+
+    .status-btn {
+      padding: 12px 4px;
+      border-radius: 12px;
+      border: 1.5px solid var(--outline-variant);
+      background: white;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--outline);
+      transition: all 0.2s;
+
+      &.active {
+        background: var(--primary-container);
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 4px 12px rgba(45, 62, 51, 0.2);
+      }
+    }
+  }
+
+  .status-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    .status-action {
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      background: white;
+      border: 1.5px solid var(--outline-variant);
+      color: var(--on-surface-variant);
+
+      &.warn {
+        color: #b91c1c;
+        border-color: #fee2e2;
+        background: #fef2f2;
+      }
+
+      &.success {
+        grid-column: span 2;
+        background: linear-gradient(135deg, #18281e 0%, #2d3e33 100%);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 12px rgba(24, 40, 30, 0.15);
+      }
+    }
+  }
+
+  .info-box {
+    background: rgba(var(--ion-color-secondary-rgb), 0.1);
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--ion-color-secondary);
+  }
+}
+
+.trip-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 16px;
+  border: 1px solid var(--outline-variant);
+  margin-bottom: 16px;
+  box-shadow: 0 12px 24px rgba(24, 40, 30, 0.06);
+
+  .card-header {
+    margin-bottom: 16px;
+    .route { font-size: 20px; font-weight: 700; color: var(--ion-color-primary); }
+    .bus-id { font-size: 12px; color: var(--outline); margin-top: 4px; }
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    .metric {
+      background: var(--surface-container-low);
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      .label { display: block; font-size: 10px; color: var(--outline); text-transform: uppercase; }
+      .val { font-size: 18px; font-weight: 700; color: var(--ion-color-primary); }
+    }
+  }
+
+  .update-btn {
+    width: 100%;
+      background: linear-gradient(135deg, #18281e 0%, #536349 100%);
+    color: white;
+    padding: 12px;
+    border-radius: 999px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+  }
+}
+
+.shift-timer-card {
+  background: linear-gradient(135deg, #18281e 0%, #2d3e33 100%);
+  color: white;
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 16px;
+
+  .content {
+    z-index: 2;
+    .label { font-size: 12px; opacity: 0.8; }
+    .time { display: block; font-size: 24px; font-weight: 700; margin-top: 4px; }
+  }
+
+  .bg-icon {
+    position: absolute;
+    right: -10px;
+    bottom: -10px;
+    font-size: 64px;
+    opacity: 0.1;
+  }
+}
+
+.passenger-section {
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    h3 { font-size: 18px; font-weight: 700; margin: 0; }
+    .count { font-size: 12px; color: var(--outline); }
+  }
+
+  .passenger-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .passenger-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    padding: 12px;
+    border: 1px solid var(--outline-variant);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+        background: linear-gradient(135deg, #d4e7d8 0%, #edf4e8 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ion-color-primary);
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .details {
+      flex: 1;
+      .name { font-weight: 700; font-size: 14px; }
+      .seat { font-size: 12px; color: var(--outline); }
+    }
+  }
+}
+
+.driver-tracking-page {
+  padding-bottom: 32px;
+}
+
+.stops-section {
+  background: var(--surface-container-lowest, #ffffff);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(24, 40, 30, 0.06);
+  border: 1px solid var(--outline-variant, rgba(0,0,0,0.08));
+  margin-bottom: 24px;
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    h3 { font-size: 18px; font-weight: 700; margin: 0; color: var(--ion-color-primary); }
+    .count { font-size: 12px; color: var(--outline); }
+  }
+
+  .stops-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+
+    .stop-node-item {
+      display: flex;
+      gap: 16px;
+      position: relative;
+
+      .node-indicator {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: 3px solid #cbd5e1;
+        background: #ffffff;
+        margin-top: 4px;
+        z-index: 2;
+        transition: all 0.3s ease;
+      }
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: 6px;
+        top: 18px;
+        bottom: -4px;
+        width: 2px;
+        background: #e2e8f0;
+        z-index: 1;
+      }
+
+      &:last-child::after {
+        display: none;
+      }
+
+      .node-details {
+        padding-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+
+        .name {
+          font-size: 14px;
+          font-weight: 700;
+          color: #1e293b;
+        }
+
+        .status-lbl {
+          font-size: 11px;
+          color: #64748b;
+          margin-top: 2px;
+        }
+      }
+
+      // Modifiers based on state
+      &.passed {
+        .node-indicator {
+          border-color: #10b981;
+          background: #10b981;
+          box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        }
+        .node-details .status-lbl {
+          color: #10b981;
+          font-weight: 600;
+        }
+      }
+
+      &.arrived {
+        .node-indicator {
+          border-color: #f59e0b;
+          background: #ffffff;
+          box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
+          animation: blinkOrangeDriver 1s infinite alternate;
+        }
+        .node-details .status-lbl {
+          color: #f59e0b;
+          font-weight: 600;
+        }
+      }
+
+      &.pending {
+        .node-indicator {
+          border-color: #cbd5e1;
+          background: #ffffff;
+        }
+      }
+    }
+  }
+}
+
+@keyframes blinkOrangeDriver {
+  from {
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+    border-width: 3px;
+  }
+  to {
+    box-shadow: 0 0 0 8px rgba(245, 158, 11, 0.5);
+    border-width: 5px;
+  }
+}

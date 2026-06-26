@@ -1,0 +1,64 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary" class="pt-safe">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/driver-dashboard" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detail Kendaraan</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="driver-vehicle-page">
+  <div class="content-wrapper pb-32">
+  <main class="p-4">
+    <div class="vehicle-hero glass-panel">
+      <div class="vehicle-art" aria-hidden="true"></div>
+      <div class="overlay"></div>
+      <div class="content">
+        <h2>{{ vehicle.name }}</h2>
+        <p>{{ vehicle.license_plate }}</p>
+      </div>
+    </div>
+
+    <div class="stats-grid mt-6">
+      <div class="stat-card">
+        <span class="material-symbols-outlined text-blue-500">oil_barrel</span>
+        <div class="info">
+          <span class="label">Bahan Bakar</span>
+          <span class="val">{{ vehicle.fuel }}%</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="material-symbols-outlined text-green-500">tire_repair</span>
+        <div class="info">
+          <span class="label">Status</span>
+          <span class="val">{{ vehicle.maintenance }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="specs-list mt-8">
+      <h3 class="font-bold text-primary mb-4">Spesifikasi & Riwayat</h3>
+
+      <div class="spec-item">
+        <span class="label">Kapasitas Kursi</span>
+        <span class="val">{{ vehicle.capacity }} Penumpang</span>
+      </div>
+      <div class="spec-item">
+        <span class="label">Servis Terakhir</span>
+        <span class="val">{{ vehicle.last_service | date:'d MMM y' }}</span>
+      </div>
+      <div class="spec-item">
+        <span class="label">Odometer</span>
+        <span class="val">12,450 km</span>
+      </div>
+    </div>
+
+    <a class="report-btn mt-8" style="text-decoration: none;" (click)="reportIssue()">
+      <span class="material-symbols-outlined">report_problem</span>
+      Laporkan Kendala
+    </a>
+  </main>
+  </div>
+</ion-content>
+
+<app-bottom-nav></app-bottom-nav>

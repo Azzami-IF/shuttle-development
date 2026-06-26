@@ -1,0 +1,6 @@
+<nav class="bottom-nav" role="navigation" aria-label="Bottom navigation">
+  <button *ngFor="let item of items" class="nav-item" [routerLink]="item.route" [ngClass]="{ active: isActive(item.route) }" aria-label="{{item.label}}">
+    <span class="material-symbols-outlined">{{ item.icon }}</span>
+    <span>{{ item.label }}</span>
+  </button>
+</nav>

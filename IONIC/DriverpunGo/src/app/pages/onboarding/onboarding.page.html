@@ -1,0 +1,31 @@
+<ion-content class="onboarding-page" [fullscreen]="true">
+  <div class="main-content">
+    <div class="illustration-container">
+      <img src="assets/icon/logo.png" alt="DriverpunGo Logo" class="bus-illustration" />
+    </div>
+
+    <div class="text-content">
+      <h1>Explore Perjalanan Ke Tempat Baru Bersama DriverpunGo!</h1>
+      <p>Layanan bus shuttle antar kota yang nyaman, aman, dan terpercaya untuk setiap perjalanan Anda.</p>
+    </div>
+
+  </div>
+
+  <footer class="bottom-sheet"
+    [class.expanded]="footerExpanded"
+    [class.dragging]="isDraggingFooter"
+    [style.transform]="footerTransform"
+    (touchstart)="onFooterTouchStart($event)"
+    (touchmove)="onFooterTouchMove($event)"
+    (touchend)="onFooterTouchEnd()"
+    (touchcancel)="onFooterTouchEnd()">
+    <div class="sheet-handle" (click)="toggleFooter()"></div>
+
+    <div class="sheet-content">
+      <button class="btn btn-primary" (click)="goToLogin()">Masuk</button>
+      <button class="btn btn-secondary" (click)="goToRegister()">Daftar</button>
+    </div>
+
+    <div class="home-indicator"></div>
+  </footer>
+</ion-content>

@@ -1,0 +1,177 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary" class="pt-safe">
+
+    <ion-title>Status Sistem</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="refresh()" [disabled]="loading" color="light">
+        <ion-icon name="refresh-outline" slot="start"></ion-icon>
+        Segarkan
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="refresh(); $event.target.complete()">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="system-container">
+    <!-- Error Message -->
+    <ion-card *ngIf="error" class="error-card">
+      <ion-card-content>{{ error }}</ion-card-content>
+    </ion-card>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-container">
+      <ion-spinner></ion-spinner>
+      <p>Loading system status...</p>
+    </div>
+
+    <!-- System Health Overview -->
+    <ng-container *ngIf="!loading && systemHealth">
+      <!-- Overall Status -->
+      <ion-card class="health-overview">
+        <ion-card-header>
+          <ion-card-title>System Status</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="status-grid">
+            <div class="status-item">
+              <div class="status-label">Overall Status</div>
+              <ion-badge [color]="getHealthStatusColor()">
+                {{ systemHealth.status | titlecase }}
+              </ion-badge>
+            </div>
+            <div class="status-item">
+              <div class="status-label">Database</div>
+              <ion-badge [color]="getComponentStatusColor(systemHealth.database)">
+                {{ systemHealth.database | titlecase }}
+              </ion-badge>
+            </div>
+            <div class="status-item">
+              <div class="status-label">API</div>
+              <ion-badge [color]="getComponentStatusColor(systemHealth.api)">
+                {{ systemHealth.api | titlecase }}
+              </ion-badge>
+            </div>
+            <div class="status-item">
+              <div class="status-label">Uptime</div>
+              <span class="uptime">{{ getUptimeDisplay() }}</span>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Resource Usage -->
+      <ion-card class="resource-card">
+        <ion-card-header>
+          <ion-card-title>Resource Usage</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="resource-item">
+            <div class="resource-header">
+              <span class="resource-label">Memory Usage</span>
+              <span class="resource-value">{{ systemHealth.memory_usage }}%</span>
+            </div>
+            <ion-progress-bar
+              [value]="systemHealth.memory_usage / 100"
+              [color]="getMemoryUsageColor(systemHealth.memory_usage)">
+            </ion-progress-bar>
+          </div>
+
+          <div class="resource-item">
+            <div class="resource-header">
+              <span class="resource-label">CPU Usage</span>
+              <span class="resource-value">{{ systemHealth.cpu_usage }}%</span>
+            </div>
+            <ion-progress-bar
+              [value]="systemHealth.cpu_usage / 100"
+              [color]="getCpuUsageColor(systemHealth.cpu_usage)">
+            </ion-progress-bar>
+          </div>
+
+          <div class="resource-item">
+            <div class="resource-header">
+              <span class="resource-label">Disk Usage</span>
+              <span class="resource-value">{{ systemHealth.disk_usage }}%</span>
+            </div>
+            <ion-progress-bar
+              [value]="systemHealth.disk_usage / 100"
+              [color]="getDiskUsageColor(systemHealth.disk_usage)">
+            </ion-progress-bar>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Last Updated -->
+      <ion-card class="info-card">
+        <ion-card-content>
+          <div class="info-row">
+            <span class="info-label">Last Updated:</span>
+            <span>{{ systemHealth.last_updated | date: 'MMM dd, HH:mm:ss' }}</span>
+          </div>
+          <div class="info-row">
+            <ion-toggle [(ngModel)]="autoRefresh"></ion-toggle>
+            <span class="info-label">Auto-refresh every 30 seconds</span>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </ng-container>
+
+    <!-- System Alerts -->
+    <ion-card *ngIf="systemAlerts.length > 0" class="alerts-card">
+      <ion-card-header>
+        <ion-card-title>System Alerts</ion-card-title>
+      </ion-card-header>
+      <ion-list>
+        <ion-item *ngFor="let alert of systemAlerts" class="alert-item">
+          <ion-icon
+            [name]="alert.level === 'critical' ? 'alert-circle' : alert.level === 'warning' ? 'warning' : 'information-circle'"
+            slot="start"
+            [color]="getAlertBadgeColor(alert.level)">
+          </ion-icon>
+          <ion-label>
+            <div class="alert-message">{{ alert.message }}</div>
+            <div class="alert-time">{{ alert.timestamp | date: 'MMM dd, HH:mm' }}</div>
+          </ion-label>
+          <ion-badge [color]="getAlertBadgeColor(alert.level)" slot="start">
+            {{ alert.level | titlecase }}
+          </ion-badge>
+        </ion-item>
+      </ion-list>
+    </ion-card>
+
+    <!-- Activity Logs -->
+    <ion-card *ngIf="activityLogs.length > 0" class="logs-card">
+      <ion-card-header>
+        <ion-card-title>Recent Activity</ion-card-title>
+      </ion-card-header>
+      <ion-list>
+        <ion-item *ngFor="let log of activityLogs | slice:0:10" class="log-item">
+          <ion-icon
+            [name]="log.status === 'success' ? 'checkmark-circle' : 'close-circle'"
+            slot="start"
+            [color]="getLogStatusBadgeColor(log.status)">
+          </ion-icon>
+          <ion-label>
+            <div class="log-action">{{ log.action }}</div>
+            <div class="log-user">{{ log.user }}</div>
+            <div class="log-time">{{ log.timestamp | date: 'MMM dd, HH:mm' }}</div>
+          </ion-label>
+          <ion-badge [color]="getLogStatusBadgeColor(log.status)" slot="start">
+            {{ log.status | titlecase }}
+          </ion-badge>
+        </ion-item>
+      </ion-list>
+    </ion-card>
+
+    <!-- Empty Alerts -->
+    <ion-card *ngIf="systemAlerts.length === 0 && !loading" class="empty-alerts">
+      <ion-card-content class="empty-content">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+        <p>No alerts at this time</p>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

@@ -1,0 +1,144 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-title>{{ getTranslation('profile') }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="profile-page">
+  <main class="p-4" *ngIf="user$ | async as user">
+    <!-- Profile Header Card -->
+    <div class="profile-hero-card glass-panel">
+      <div class="avatar-container">
+        <div class="avatar">
+          <span class="material-symbols-outlined text-[48px]">person</span>
+        </div>
+        <div class="role-badge" [class]="user.role">
+          {{ user.role | uppercase }}
+        </div>
+      </div>
+      <div class="user-info">
+        <h2>{{ user.name }}</h2>
+        <p>{{ user.email }}</p>
+        <p class="phone" *ngIf="user.phone">{{ user.phone }}</p>
+      </div>
+    </div>
+
+    <!-- Account Sections -->
+    <div class="menu-container mt-8" *ngIf="lang$ | async">
+      <h3 class="section-title">{{ getTranslation('accountInfo') }}</h3>
+      <div class="menu-list">
+        <button class="menu-item" (click)="openEditProfile(user)">
+          <span class="material-symbols-outlined icon">badge</span>
+          <div class="label-box">
+            <span class="title">{{ getTranslation('personalData') }}</span>
+            <span class="sub">{{ getTranslation('manageProfile') }}</span>
+          </div>
+          <span class="material-symbols-outlined arrow">chevron_right</span>
+        </button>
+
+        <button class="menu-item" (click)="openLanguageSelection()">
+          <span class="material-symbols-outlined icon">language</span>
+          <div class="label-box">
+            <span class="title">{{ getTranslation('language') }}</span>
+            <span class="sub">{{ getTranslation('language') }}: {{ currentLanguageLabel }}</span>
+          </div>
+          <span class="material-symbols-outlined arrow">chevron_right</span>
+        </button>
+
+        <button class="menu-item" (click)="openChangePassword()">
+          <span class="material-symbols-outlined icon">security</span>
+          <div class="label-box">
+            <span class="title">{{ getTranslation('security') }}</span>
+            <span class="sub">{{ getTranslation('manageSecurity') }}</span>
+          </div>
+          <span class="material-symbols-outlined arrow">chevron_right</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Logout Action -->
+    <div class="mt-10 mb-12">
+      <button class="logout-btn" type="button" (click)="confirmLogout()">
+        <span class="material-symbols-outlined">logout</span>
+        {{ getTranslation('logout') }}
+      </button>
+      <p class="version-text text-center mt-4">Versi 1.0.4-serene</p>
+    </div>
+    <!-- Edit Profile Modal -->
+    <ion-modal [isOpen]="isEditingProfile" (didDismiss)="isEditingProfile = false" [initialBreakpoint]="0.5" [breakpoints]="[0, 0.5, 0.75]">
+      <ng-template>
+        <ion-header>
+          <ion-toolbar color="primary">
+            <ion-title>Ubah Data Pribadi</ion-title>
+            <ion-buttons slot="end">
+              <ion-button (click)="isEditingProfile = false">Tutup</ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content class="ion-padding">
+          <form (submit)="saveProfile()">
+            <div class="input-group mb-4">
+              <label>Nama Lengkap</label>
+              <input type="text" [(ngModel)]="profileData.name" name="name" required class="custom-input" />
+            </div>
+            <div class="input-group mb-6">
+              <label>Nomor Telepon</label>
+              <input type="tel" [(ngModel)]="profileData.phone" name="phone" class="custom-input" />
+            </div>
+            <button type="submit" class="btn-submit w-full" [disabled]="isLoading">Simpan Perubahan</button>
+          </form>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+
+    <!-- Change Password Modal -->
+    <ion-modal [isOpen]="isChangingPassword" (didDismiss)="isChangingPassword = false" [initialBreakpoint]="0.6" [breakpoints]="[0, 0.6, 0.8]">
+      <ng-template>
+        <ion-header>
+          <ion-toolbar color="primary">
+            <ion-title>Ganti Kata Sandi</ion-title>
+            <ion-buttons slot="end">
+              <ion-button (click)="isChangingPassword = false">Tutup</ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content class="ion-padding">
+          <form (submit)="savePassword()">
+            <div class="input-group mb-4">
+              <label>Kata Sandi Lama</label>
+              <input type="password" [(ngModel)]="passwordData.old_password" name="old_password" required class="custom-input" />
+            </div>
+            <div class="input-group mb-6">
+              <label>Kata Sandi Baru</label>
+              <input type="password" [(ngModel)]="passwordData.new_password" name="new_password" required class="custom-input" />
+            </div>
+            <button type="submit" class="btn-submit w-full" [disabled]="isLoading">Perbarui Sandi</button>
+          </form>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+  </main>
+</ion-content>
+
+<!-- Dynamic Footer Based on Role -->
+<ng-container *ngIf="user$ | async as user">
+  <!-- Passenger Footer -->
+  <nav class="bottom-nav" *ngIf="user.role === 'customer'">
+    <button class="nav-item" routerLink="/dashboard">
+      <span class="material-symbols-outlined">home</span>
+      <span>{{ getTranslation('home') }}</span>
+    </button>
+    <button class="nav-item" routerLink="/schedule-list">
+      <span class="material-symbols-outlined">directions_bus</span>
+      <span>{{ getTranslation('schedule') }}</span>
+    </button>
+    <button class="nav-item" routerLink="/booking-detail">
+      <span class="material-symbols-outlined">confirmation_number</span>
+      <span>{{ getTranslation('bookings') }}</span>
+    </button>
+    <button class="nav-item active">
+      <span class="material-symbols-outlined">person</span>
+      <span>{{ getTranslation('profile') }}</span>
+    </button>
+  </nav>
+</ng-container>

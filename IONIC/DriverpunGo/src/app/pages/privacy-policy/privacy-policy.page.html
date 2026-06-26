@@ -1,0 +1,104 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary" class="pt-safe">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-[20px]">security</span>
+        <span>Kebijakan Privasi</span>
+      </div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="privacy-page bg-gray-50">
+  <div class="p-4 pb-32">
+    <div class="policy-card">
+      <h1 class="policy-title">Kebijakan Privasi & Ketentuan Layanan</h1>
+      <p class="policy-meta">
+        DriverpunGo App — Manajemen Driver<br>
+        Berlaku sejak & terakhir diperbarui:<br> {{ today | date:'d MMMM y' }}
+      </p>
+
+      <div class="policy-content mt-6 text-gray-700 text-sm leading-relaxed">
+        <p class="mb-4">
+          Selamat datang di <strong>DriverpunGo</strong> — platform manajemen pengemudi terpercaya milik Tim Pengembang DriverpunGo. Dokumen ini merupakan Kebijakan Privasi sekaligus Ketentuan Penggunaan Layanan yang berlaku bagi seluruh pengemudi (Driver).
+        </p>
+        <p class="mb-6">
+          Dengan menggunakan layanan DriverpunGo, Anda dinyatakan telah membaca, memahami, dan menyetujui seluruh ketentuan yang tercantum di bawah ini.
+        </p>
+
+        <div class="policy-section">
+          <div class="section-header">
+            <span class="section-number">01</span>
+            <h2>Data Pribadi yang Kami Kumpulkan</h2>
+          </div>
+          
+          <h3 class="subsection-title">1.1 Data Identitas & Akun</h3>
+          <p>
+            Saat mendaftar dan menggunakan DriverpunGo, kami mengumpulkan informasi seperti nama, email, nomor telepon, dan ID Pengemudi.
+          </p>
+
+          <h3 class="subsection-title mt-4">1.2 Data Lokasi (GPS)</h3>
+          <p>
+            Aplikasi ini memerlukan akses lokasi Anda secara <em>real-time</em> dan <em>background</em> selama Anda berada dalam status perjalanan (On-Going) untuk memastikan keselamatan penumpang dan memantau rute.
+          </p>
+        </div>
+
+        <div class="policy-section mt-6">
+          <div class="section-header">
+            <span class="section-number">02</span>
+            <h2>Penggunaan Data</h2>
+          </div>
+          <p>
+            Data Anda hanya digunakan untuk keperluan operasional armada, keamanan, dan peningkatan layanan. Kami tidak membagikan data Anda ke pihak ketiga tanpa izin eksplisit dari Anda, kecuali diwajibkan oleh hukum yang berlaku.
+          </p>
+        </div>
+
+        <div class="policy-section mt-6">
+          <div class="section-header">
+            <span class="section-number">03</span>
+            <h2>Keamanan Data</h2>
+          </div>
+          <p>
+            Kami berkomitmen untuk melindungi data pribadi Anda. Sistem kami dilengkapi dengan teknologi enkripsi standar industri untuk mencegah akses yang tidak sah, kebocoran data, atau penyalahgunaan informasi pengemudi.
+          </p>
+        </div>
+
+        <div class="policy-section mt-6">
+          <div class="section-header">
+            <span class="section-number">04</span>
+            <h2>Hak Pengguna</h2>
+          </div>
+          <p>
+            Anda berhak untuk meminta salinan data pribadi Anda yang kami simpan, serta meminta penghapusan akun jika Anda tidak lagi bertugas sebagai pengemudi. Permintaan ini dapat dilakukan melalui pusat bantuan (Help Desk) kami.
+          </p>
+        </div>
+
+        <div class="policy-section mt-6">
+          <div class="section-header">
+            <span class="section-number">05</span>
+            <h2>Perubahan Kebijakan</h2>
+          </div>
+          <p>
+            Kebijakan Privasi ini dapat diperbarui dari waktu ke waktu. Jika ada perubahan material, kami akan memberitahukan kepada Anda melalui notifikasi di dalam aplikasi.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<ion-footer class="ion-no-border">
+  <div class="fixed-bottom-bar">
+    <ion-item lines="none" class="bg-transparent" style="--background: transparent; --padding-start: 0; font-size: 13px; color: #475569;">
+      <ion-checkbox slot="start" [(ngModel)]="isChecked" color="primary"></ion-checkbox>
+      <ion-label class="ion-text-wrap font-medium">Saya telah membaca dan menyetujui Kebijakan Privasi</ion-label>
+    </ion-item>
+    <button class="agree-btn" [disabled]="!isChecked" [style.opacity]="isChecked ? '1' : '0.5'" (click)="agreeAndContinue()">
+      <span class="material-symbols-outlined">verified_user</span>
+      SETUJU & LANJUTKAN
+    </button>
+  </div>
+</ion-footer>

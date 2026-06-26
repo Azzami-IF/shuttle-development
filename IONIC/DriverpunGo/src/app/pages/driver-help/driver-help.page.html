@@ -1,0 +1,51 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/driver-profile" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Pusat Bantuan</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg-gray-50">
+  <div style="padding: 20px;">
+    <div style="margin-bottom: 24px;">
+      <h2 style="font-size: 20px; font-weight: bold; color: #1f2937; margin-bottom: 8px;">Halo, ada yang bisa kami bantu?</h2>
+      <p style="font-size: 14px; color: #6b7280; margin: 0;">Temukan jawaban atas pertanyaan Anda atau hubungi tim support kami.</p>
+    </div>
+
+    <div style="background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #f3f4f6; overflow: hidden; margin-bottom: 24px;">
+      <div style="padding: 16px; border-bottom: 1px solid #f3f4f6; background: #f9fafb;">
+        <h3 style="font-weight: 600; color: #1f2937; margin: 0; font-size: 16px;">Pertanyaan Umum (FAQ)</h3>
+      </div>
+      
+      <ion-accordion-group>
+        <ion-accordion value="first">
+          <ion-item slot="header" color="light" lines="none">
+            <ion-label style="font-weight: 500; font-size: 14px; color: #374151;">Bagaimana cara mengubah profil?</ion-label>
+          </ion-item>
+          <div slot="content" style="padding: 16px; font-size: 14px; color: #4b5563; background: white; border-top: 1px solid #f3f4f6;">
+            Saat ini pengubahan profil hanya dapat dilakukan dengan menghubungi admin untuk menjaga keamanan akun Anda.
+          </div>
+        </ion-accordion>
+        <ion-accordion value="second">
+          <ion-item slot="header" color="light" lines="none">
+            <ion-label style="font-weight: 500; font-size: 14px; color: #374151;">Apa yang harus dilakukan jika aplikasi error?</ion-label>
+          </ion-item>
+          <div slot="content" style="padding: 16px; font-size: 14px; color: #4b5563; background: white; border-top: 1px solid #f3f4f6;">
+            Cobalah untuk melakukan muat ulang (refresh) atau paksa henti aplikasi. Jika masih berlanjut, hubungi Support.
+          </div>
+        </ion-accordion>
+        <ion-accordion value="third">
+          <ion-item slot="header" color="light" lines="none">
+            <ion-label style="font-weight: 500; font-size: 14px; color: #374151;">Bagaimana cara melihat riwayat perjalanan?</ion-label>
+          </ion-item>
+          <div slot="content" style="padding: 16px; font-size: 14px; color: #4b5563; background: white; border-top: 1px solid #f3f4f6;">
+            Anda bisa melihat riwayat di menu History yang terdapat pada navigasi bagian bawah aplikasi.
+          </div>
+        </ion-accordion>
+      </ion-accordion-group>
+    </div>
+
+  </div>
+</ion-content>

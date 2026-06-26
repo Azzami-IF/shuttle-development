@@ -1,0 +1,8 @@
+.git_backup/
+**/.git_backup/
+**/node_modules/
+**/www/
+**/.sourcemaps/
+**/.angular/
+**/.editorconfig
+**/.browserslistrc

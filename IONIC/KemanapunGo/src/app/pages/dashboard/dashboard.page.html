@@ -1,0 +1,284 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary" class="pt-safe">
+    <ion-title slot="start">
+      <div class="brand">
+        <span class="material-symbols-outlined">directions_bus</span>
+        <span>KemanapunGo</span>
+      </div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="dashboard-page">
+
+  <main *ngIf="(user$ | async) || getResolvedUser() as user; else guestState">
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-wrapper">
+        <div class="hero-text-block">
+          <p class="greeting">{{ getGreeting() }},</p>
+          <h2 class="user-name">{{ stripEmoji(user.name) }}</h2>
+        </div>
+      </div>
+    </section>
+
+    <!-- Route Selection Card (Customer Only) -->
+    <section class="search-card" *ngIf="user.role === 'customer'">
+      <div class="route-picker">
+        <div class="point">
+          <div class="indicator">
+            <div class="dot"></div>
+            <div class="line"></div>
+          </div>
+          <div class="info" style="width: 100%;">
+            <label>{{ getTranslation('origin') }}</label>
+            <select [(ngModel)]="searchData.origin" style="background: transparent; border: none; outline: none; font-size: 16px; font-weight: 600; width: 100%; color: var(--ion-text-color, #2d3748); padding: 0;">
+              <option value="Jakarta">Jakarta (Kampung Rambutan)</option>
+              <option value="Bandung">Bandung (Leuwi Panjang)</option>
+            </select>
+          </div>
+        </div>
+        <div class="point">
+          <div class="indicator">
+            <div class="dot destination"></div>
+          </div>
+          <div class="info" style="width: 100%;">
+            <label>{{ getTranslation('destination') }}</label>
+            <select [(ngModel)]="searchData.destination" style="background: transparent; border: none; outline: none; font-size: 16px; font-weight: 600; width: 100%; color: var(--ion-text-color, #2d3748); padding: 0;">
+              <option value="Bandung">Bandung (Leuwi Panjang)</option>
+              <option value="Jakarta">Jakarta (Kampung Rambutan)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="details-grid">
+        <div class="detail-item">
+          <label>{{ getTranslation('travelDate') }}</label>
+          <div class="val" style="display: flex; align-items: center; gap: 4px;">
+            <span class="material-symbols-outlined" style="font-size: 18px;">calendar_month</span>
+            <input type="date" [(ngModel)]="searchData.date" style="background: transparent; border: none; outline: none; font-size: 14px; font-weight: 500; width: 100%; color: var(--ion-text-color, #2d3748); padding: 0;" />
+          </div>
+        </div>
+        <div class="detail-item">
+          <label>{{ getTranslation('passengers') }}</label>
+          <div class="val">
+            <span class="material-symbols-outlined">person</span>
+            1 {{ getTranslation('adult') }}
+          </div>
+        </div>
+      </div>
+
+      <button class="search-btn" (click)="searchTickets()">
+        <span class="material-symbols-outlined">search</span>
+        {{ getTranslation('searchTicket') }}
+      </button>
+    </section>
+
+    <!-- Promo Slider Section -->
+    <section class="promo-section" *ngIf="user.role === 'customer'">
+      <div class="section-header">
+        <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: var(--ion-text-color);">Promo Spesial</h3>
+      </div>
+      <div 
+        class="promo-carousel-wrapper"
+        (touchstart)="onTouchStart($event)"
+        (touchmove)="onTouchMove($event)"
+        (touchend)="onTouchEnd($event)"
+        (mousedown)="onMouseDown($event)"
+        (mousemove)="onMouseMove($event)"
+        (mouseup)="onMouseUp($event)"
+        (mouseleave)="onMouseLeave()"
+        [style.cursor]="isDragging ? 'grabbing' : 'grab'">
+        <div 
+          class="promo-scroll" 
+          [style.transform]="'translateX(calc(-' + (activePromoIndex * 100) + '% + ' + dragDeltaX + 'px))'"
+          [style.transition]="transitionStyle">
+          <div class="promo-card" *ngFor="let promo of promos" [style.background]="promo.color">
+            <div class="promo-card-content">
+              <span class="badge">{{ promo.discount }}</span>
+              <h4>{{ promo.title }}</h4>
+              <p>{{ promo.desc }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="promo-carousel-indicators">
+        <span 
+          *ngFor="let promo of promos; let i = index" 
+          [class.active]="i === activePromoIndex"
+          (click)="setActivePromo(i)">
+        </span>
+      </div>
+    </section>
+
+    <section class="next-schedule-card" *ngIf="user.role === 'customer'">
+      <div class="card-head">
+        <div>
+          <span class="eyebrow" *ngIf="lang$ | async">{{ getTranslation('closestSchedule') }}</span>
+          <h3 *ngIf="lang$ | async">{{ getTranslation('nextDeparture') }}</h3>
+        </div>
+        <button class="refresh-btn" (click)="refreshSchedulePreview()">
+          <span class="material-symbols-outlined">refresh</span>
+        </button>
+      </div>
+
+      <ng-container *ngIf="!schedulePreviewLoading; else loadingPreview">
+        <div class="featured-schedule" *ngIf="featuredSchedule; else emptyPreview">
+          <div class="route-row">
+            <div>
+              <p class="route-label">{{ featuredSchedule.origin }}</p>
+              <p class="route-time">{{ formatTime(featuredSchedule.departure_time) }}</p>
+            </div>
+            <span class="material-symbols-outlined route-arrow">trending_flat</span>
+            <div class="route-end">
+              <p class="route-label">{{ featuredSchedule.destination }}</p>
+              <p class="route-time">{{ featuredSchedule.vehicle?.name || 'Armada terjadwal' }}</p>
+            </div>
+          </div>
+
+          <div class="schedule-meta">
+            <div>
+              <span class="meta-label" *ngIf="lang$ | async">{{ getTranslation('remainingSeats') }}</span>
+              <strong>{{ getAvailableSeats(featuredSchedule) }}</strong>
+            </div>
+            <div>
+              <span class="meta-label" *ngIf="lang$ | async">{{ getTranslation('status') }}</span>
+              <strong>{{ getCountdownLabel(featuredSchedule.departure_time) }}</strong>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-template #loadingPreview>
+        <div class="preview-state">Memuat jadwal...</div>
+      </ng-template>
+
+      <ng-template #emptyPreview>
+        <div class="preview-state">Belum ada jadwal yang cocok untuk pencarian ini.</div>
+      </ng-template>
+
+      <div class="preview-list" *ngIf="previewSchedules.length > 1">
+        <button class="preview-item" *ngFor="let schedule of previewSchedules.slice(1)" (click)="viewSchedule(schedule.id)">
+          <div>
+            <span class="preview-route">{{ schedule.origin }} → {{ schedule.destination }}</span>
+            <span class="preview-time">{{ formatTime(schedule.departure_time) }}</span>
+          </div>
+          <span class="preview-seat">{{ getAvailableSeats(schedule) }} kursi</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Rute Terpopuler -->
+    <section class="popular-routes-section" *ngIf="user.role === 'customer'">
+      <h3>Rute Terpopuler</h3>
+      <div class="routes-grid">
+        <div 
+          class="route-card" 
+          *ngFor="let route of popularRoutes" 
+          [style.background]="route.gradient"
+          (click)="selectPopularRoute(route)">
+          <div class="route-path">{{ route.origin }} → {{ route.destination }}</div>
+          <div class="price-info">
+            <span class="price-label">Mulai</span>
+            <span class="price-val">Rp {{ route.price | number:'1.0-0' }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- Quick Access Menu -->
+    <section class="quick-menu">
+      <button class="menu-item" routerLink="/schedule-list">
+        <div class="icon-box">
+          <span class="material-symbols-outlined">schedule</span>
+        </div>
+        <span>{{ getTranslation('schedule') }}</span>
+      </button>
+      <button class="menu-item" routerLink="/booking-detail" *ngIf="user.role === 'customer'">
+        <div class="icon-box secondary">
+          <span class="material-symbols-outlined">confirmation_number</span>
+        </div>
+        <span>{{ getTranslation('bookings') }}</span>
+      </button>
+      <button class="menu-item" routerLink="/profile">
+        <div class="icon-box tertiary">
+          <span class="material-symbols-outlined">person</span>
+        </div>
+        <span>{{ getTranslation('profile') }}</span>
+      </button>
+    </section>
+
+    <!-- Keunggulan Kami -->
+    <section class="info-section" *ngIf="user.role === 'customer'">
+      <div class="info-grid">
+        <div class="info-banner">
+          <div class="content">
+            <span class="label">KENAPA KEMANAPUNGO?</span>
+            <p>Layanan Shuttle Premium dengan kenyamanan ekstra, jaminan pasti berangkat & kemudahan pelacakan real-time.</p>
+          </div>
+          <span class="material-symbols-outlined icon">verified_user</span>
+        </div>
+
+        <div class="info-item">
+          <span class="material-symbols-outlined primary">bolt</span>
+          <span class="title">Pesan Instan</span>
+          <p>Pilih kursi dan bayar langsung di aplikasi.</p>
+        </div>
+
+        <div class="info-item">
+          <span class="material-symbols-outlined secondary">explore</span>
+          <span class="title">Live Tracking</span>
+          <p>Pantau lokasi shuttle Anda secara langsung.</p>
+        </div>
+
+        <div class="info-item">
+          <span class="material-symbols-outlined secondary">event_seat</span>
+          <span class="title">Pilih Kursi</span>
+          <p>Bebas pilih kursi ternyaman Anda sendiri.</p>
+        </div>
+
+        <div class="info-item">
+          <span class="material-symbols-outlined primary">workspace_premium</span>
+          <span class="title">Fasilitas Lengkap</span>
+          <p>WiFi gratis, Charger USB, dan AC di setiap unit.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</ion-content>
+
+<ng-template #guestState>
+  <div class="dashboard-empty-state">
+    <span class="material-symbols-outlined">person_off</span>
+    <h3>Sesi belum tersedia</h3>
+    <p>Silakan masuk kembali agar dashboard dan jadwal perjalanan dapat dimuat.</p>
+    <button class="search-btn" routerLink="/login">
+      <span class="material-symbols-outlined">login</span>
+      Ke Halaman Login
+    </button>
+  </div>
+</ng-template>
+
+<nav class="bottom-nav" *ngIf="(user$ | async) as user">
+  <ng-container *ngIf="user.role === 'customer'">
+    <button class="nav-item active">
+      <span class="material-symbols-outlined">home</span>
+      <span>{{ getTranslation('home') }}</span>
+    </button>
+    <button class="nav-item" routerLink="/schedule-list">
+      <span class="material-symbols-outlined">directions_bus</span>
+      <span>{{ getTranslation('schedule') }}</span>
+    </button>
+    <button class="nav-item" routerLink="/booking-detail">
+      <span class="material-symbols-outlined">confirmation_number</span>
+      <span>{{ getTranslation('bookings') }}</span>
+    </button>
+    <button class="nav-item" routerLink="/profile">
+      <span class="material-symbols-outlined">person</span>
+      <span>{{ getTranslation('profile') }}</span>
+    </button>
+  </ng-container>
+</nav>
