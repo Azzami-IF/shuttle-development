@@ -1,4 +1,4 @@
-# Shuttle Development 🚐💨
+# Shuttle Development
 
 Repositori ini berisi kode sumber lengkap untuk proyek **Shuttle Booking & Tracking System**, yang terdiri dari aplikasi frontend mobile (Ionic/Angular) dan backend API (Laravel).
 
